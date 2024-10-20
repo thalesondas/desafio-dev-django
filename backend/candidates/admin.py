@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import PersonalInfo, ContactInfo, ProfessionalExperience, AcademicBackground
+
+admin.site.register(PersonalInfo)
+admin.site.register(ContactInfo)
+admin.site.register(ProfessionalExperience)
+admin.site.register(AcademicBackground)
