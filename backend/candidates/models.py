@@ -19,9 +19,9 @@ class PersonalInfo(models.Model):
 class ProfessionalExperience(models.Model):
     position = models.CharField(max_length=255)
     company = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(blank=True, null=True)
-    description = models.TextField()
+    exp_start_date = models.DateField()
+    exp_end_date = models.DateField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     contact_info = models.ForeignKey("ContactInfo", on_delete=models.CASCADE, related_name="professional_experiences")
 
     def __str__(self):
@@ -30,8 +30,8 @@ class ProfessionalExperience(models.Model):
 class AcademicBackground(models.Model):
     institution = models.CharField(max_length=255)
     course = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(blank=True, null=True)
+    acad_start_date = models.DateField()
+    acad_end_date = models.DateField(blank=True, null=True)
     contact_info = models.ForeignKey("ContactInfo", on_delete=models.CASCADE, related_name="academic_backgrounds")
 
     def __str__(self):

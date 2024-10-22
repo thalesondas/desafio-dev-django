@@ -1,3 +1,20 @@
+.cursor-pointer{
+    cursor: pointer;
+}
+
 .main-container{
     min-height: 100vh;
+    background-color: #221f3c;
+    color: white;
+}
+
+.custom-span{
+    color: grey;
+    margin-top: -12px;
+}
+
+.experiences-container,
+.academic-container{
+    border: 1px solid white;
+    border-radius: 8px;
 }
