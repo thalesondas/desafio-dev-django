@@ -6,6 +6,7 @@ import '../assets/PostForm.css'
 
 const PostForm = () => {
 
+  {/* **** BLOCO PARA ARMAZENAR VALORES DOS INPUT **** */}
   const [formContactData, setFormContactData] = useState({
     email: '',
     phone: '',
@@ -32,6 +33,7 @@ const PostForm = () => {
     acad_end_date: null
   }]);
 
+  {/* **** BLOCO PARA MUDANÇAS NO INPUT // ARMAZENAR VALORES **** */}
   const handleChangeContact = (ev) => {
     setFormContactData({
       ...formContactData,
@@ -58,10 +60,55 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   };
 
+  {/* **** BLOCO PARA FUNÇÕES DE VALIDAÇÃO**** */}
+  const validateAllFields = () => {
+    if(validateIsFieldEmpty){
+      throw new Error("Preencha todos os campos obrigatórios");
+    }
+
+    if(!validateEmail(formContactData.email)){
+      throw new Error("Formato do email inválido")
+    }
+
+    if (formContactData.phone.length !== 15) {
+      throw new Error("Número de telefone inválido")
+    }
+
+    formExpData.forEach(exp => {
+      if (!validateDates(exp.exp_start_date, exp.exp_end_date)) {
+        throw new Error("A data de término da experiência profissional não pode ser anterior à data de início");
+      }
+    });
+  
+    formAcademicData.forEach(acad => {
+      if (!validateDates(acad.acad_start_date, acad.acad_end_date)) {
+        throw new Error("A data de término da formação acadêmica não pode ser anterior à data de início");
+      }
+    });
+  }
+
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return regex.test(email);
   }
+
+  const validateDates = (startDate, endDate) => {
+    if (endDate && new Date(endDate) < new Date(startDate)) {
+      return false;
+    }
+    return true;
+  };
+
+  const validateIsFieldEmpty = () => {
+    if(isFieldEmpty(formContactData.email) || isFieldEmpty(formContactData.phone) || isFieldEmpty(formContactData.address) || isFieldEmpty(formPersonalData.name) || isFieldEmpty(formPersonalData.date_of_birth)) {
+      return true;
+    }
+  }
+
+  {/* **** BLOCO PARA FUNÇÕES AUXILIARES**** */}
+  const isFieldEmpty = (value) => {
+    return value.trim() === "";
+  };
 
   const addExp = () => {
     setFormExpData([...formExpData, {
@@ -92,36 +139,29 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   }
 
+  {/* **** BLOCO/LÓGICA PARA CADASTRO DE CURRÍCULO **** */}
   const handleSubmit = (ev) => {
     ev.preventDefault();
 
-    let contactId;
-
-    const email = formContactData.email;
-    if(!validateEmail(email)){
-      throw new Error("Formato do email inválido")
-    }
+    validateAllFields();
   
     axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
       .then(response => {
         console.log('Informações de contato enviadas com sucesso: ', response.data);
   
-        contactId = response.data.id;
   
         return axios.post('http://127.0.0.1:8000/api/personal-info/', {
           ...formPersonalData,
-          contact_info: contactId
+          contact_info: response.data.id
         });
       })
       .then(response => {
         console.log('Informações pessoais enviadas com sucesso: ', response.data);
 
-        const contactId = response.data.contact_info;
-
         const requests = formExpData.map(exp => {
           return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
             ...exp,
-            contact_info: contactId
+            contact_info: response.data.contact_info
           });
         });
       
@@ -130,12 +170,10 @@ const PostForm = () => {
       .then(response => {
         console.log('Experiências profissionais enviadas com sucesso: ', response);
 
-        const contactId = response[0].data.contact_info;
-
         const requests = formAcademicData.map(acad => {
           return axios.post('http://127.0.0.1:8000/api/academic-background/', {
             ...acad,
-            contact_info: contactId
+            contact_info: response[0].data.contact_info
           });
         });
       
@@ -159,6 +197,7 @@ const PostForm = () => {
 
         <Row className='mb-4 gap-5'>
           
+          {/* **** BLOCO PARA INFORMAÇÕES DE CONTATO **** */}
           <Col>
             <h3 className='mb-3 d-flex justify-content-center'>Informações de Contato</h3>
 
@@ -184,6 +223,7 @@ const PostForm = () => {
             </Form.Group>
           </Col>
 
+          {/* **** BLOCO PARA INFORMAÇÕES PESSOAIS **** */}
           <Col>
             <h3 className='mb-3 d-flex justify-content-center'>Informações Pessoais</h3>
 
@@ -207,6 +247,7 @@ const PostForm = () => {
 
         <Row className='gap-5'>
 
+          {/* **** BLOCO PARA EXPERIÊNCIAS PROFISSIONAIS **** */}
           <Col>
             <h3 className='mb-3 d-flex justify-content-center'>Experiências Profissionais</h3>
 
@@ -267,6 +308,7 @@ const PostForm = () => {
               <Button variant='success' className='mt-1' onClick={addExp}>Adicionar nova experiência profissional</Button>
           </Col>
 
+          {/* **** BLOCO PARA FORMAÇÃO ACADÊMICA **** */}
           <Col>
             <h3 className='mb-3 d-flex justify-content-center'>Formação Acadêmica</h3>
 
