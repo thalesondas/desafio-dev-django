@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Form, Button, Row, Col, Container } from 'react-bootstrap'
 import axios from 'axios';
+import InputMask from 'react-input-mask';
 import '../assets/PostForm.css'
 
 const PostForm = () => {
@@ -57,6 +58,11 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   };
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return regex.test(email);
+  }
+
   const addExp = () => {
     setFormExpData([...formExpData, {
       position: '',
@@ -90,6 +96,11 @@ const PostForm = () => {
     ev.preventDefault();
 
     let contactId;
+
+    const email = formContactData.email;
+    if(!validateEmail(email)){
+      throw new Error("Formato do email inválido")
+    }
   
     axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
       .then(response => {
@@ -134,7 +145,7 @@ const PostForm = () => {
         console.log('Formação acadêmica enviada com sucesso: ', response);
       })
       .catch(error => {
-        console.error('Erro de resposta:', error.response.data);
+        console.error('Erro de resposta:', error.response.data || error.message);
       });
   };
 
@@ -158,7 +169,13 @@ const PostForm = () => {
 
             <Form.Group className="mb-3" controlId="formPhone">
                 <Form.Label>Telefone*</Form.Label>
-                <Form.Control type="tel" placeholder="Coloque seu telefone" name='phone' value={formContactData.phone} onChange={handleChangeContact} />
+                <InputMask 
+                  mask="(99) 99999-9999" 
+                  value={formContactData.phone}
+                  onChange={handleChangeContact}
+                >
+                  {() => <Form.Control type="tel" name='phone' placeholder="Coloque seu telefone" />}
+                </InputMask>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formAddress">
