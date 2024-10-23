@@ -195,56 +195,62 @@ const PostForm = () => {
   {/* **** BLOCO/LÓGICA PARA CADASTRO DE CURRÍCULO **** */}
   const handleSubmit = (ev) => {
     ev.preventDefault();
-
-    validateAllFields();
-
-    const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : ''
-    const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`
+  
+    validateAllFields(); // Certifique-se de validar todos os campos antes do envio
+  
+    const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
+    const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`;
   
     setFormContactData({ ...formContactData, address: fullAddress });
-
-    console.log(formContactData)
-
+  
+    console.log(formContactData);
+  
+    // Inicia a requisição para salvar as informações de contato e pegar o id gerado para fazer os relacionamentos
     axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
       .then(response => {
         console.log('Informações de contato enviadas com sucesso: ', response.data);
   
-        return axios.post('http://127.0.0.1:8000/api/personal-info/', {
+        // Monta a requisição para informações pessoais
+        const personalInfoRequest = axios.post('http://127.0.0.1:8000/api/personal-info/', {
           ...formPersonalData,
           contact_info: response.data.id
         });
-      })
-      .then(response => {
-        console.log('Informações pessoais enviadas com sucesso: ', response.data);
+  
+        // Filtra e mapeia as requisições para as experiências profissionais
+        const expRequests = formExpData
+          .filter(exp => exp.position && exp.company && exp.exp_start_date)
+          .map(exp => {
 
-        const requests = formExpData.map(exp => {
-          return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
-            ...exp,
-            contact_info: response.data.contact_info
+            return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
+              ...exp,
+              exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date, // Retornar null caso string esteja vazia para não dar erro
+              description: exp.description === '' ? null : exp.description, // Mesma lógica de cima
+              contact_info: response.data.id
+            });
           });
-        });
-      
-        return Promise.all(requests);
-      })
-      .then(response => {
-        console.log('Experiências profissionais enviadas com sucesso: ', response);
+  
+        // Filtra e mapeia as requisições para a formação acadêmica
+        const academicRequests = formAcademicData
+          .filter(acad => acad.institution && acad.course && acad.acad_start_date)
+          .map(acad => {
 
-        const requests = formAcademicData.map(acad => {
-          return axios.post('http://127.0.0.1:8000/api/academic-background/', {
-            ...acad,
-            contact_info: response[0].data.contact_info
+            return axios.post('http://127.0.0.1:8000/api/academic-background/', {
+              ...acad,
+              acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date, // Mesma lógica do último caso de cima
+              contact_info: response.data.id
+            });
           });
-        });
-      
-        return Promise.all(requests);
+  
+        // Envia todas as requisições em paralelo
+        return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
       })
       .then(response => {
-        console.log('Formação acadêmica enviada com sucesso: ', response);
+        console.log('Todas as informações foram enviadas com sucesso:', response);
       })
       .catch(error => {
-        console.error('Erro de resposta:', error.response.data || error.message);
+        console.error('Erro ao enviar os dados:', error.message);
       });
-  };
+  };  
 
   return (
     <main className='main-container d-flex flex-column align-items-center justify-content-center'>
