@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Form, Button, Row, Col, Container } from 'react-bootstrap'
+import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import axios from 'axios';
 import InputMask from 'react-input-mask';
 import '../assets/PostForm.css'
@@ -163,6 +163,24 @@ const PostForm = () => {
     return value.trim() === "";
   };
 
+  const MainTooltip = (
+    <Tooltip id="MainTooltip">
+      Items marcados com * são obrigatórios
+    </Tooltip>
+  );
+
+  const ExpTooltip = (
+    <Tooltip id="ExpTooltip">
+      Experiências que não tiverem Cargo, Empresa e Data de Início preenchidas serão ignoradas
+    </Tooltip>
+  );
+
+  const AcadTooltip = (
+    <Tooltip id="AcadTooltip">
+      Formações que não tiverem Instituição, Curso e Data de Início preenchidas serão ignoradas
+    </Tooltip>
+  );
+
   const addExp = () => {
     setFormExpData([...formExpData, {
       position: '',
@@ -255,8 +273,12 @@ const PostForm = () => {
   return (
     <main className='main-container d-flex flex-column align-items-center justify-content-center'>
 
-      <h1 className='mt-4'>Cadastro do Currículo</h1>
-      <span className='custom-span mb-5'>Items marcados com * são obrigatórios</span>
+      <h1 className='mt-4 mb-5 d-flex justify-content-center'>
+        Cadastro do Currículo
+        <OverlayTrigger placement="right" overlay={MainTooltip}>
+          <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
+        </OverlayTrigger>
+      </h1>
 
       <Form className='w-75' onSubmit={handleSubmit} >
 
@@ -306,7 +328,7 @@ const PostForm = () => {
         </Row>
 
         {/* **** SUB-BLOCO PARA ENDEREÇO // INFORMAÇÕES DE CONTATO **** */}
-        <h4 className='d-flex justify-content-center mb-3'>Endereço</h4>
+        <h4 className='d-flex justify-content-center mb-3 mt-4'>Endereço</h4>
         <Row className='gap-5 mb-4'>
           <Col>
             <Row>
@@ -362,7 +384,12 @@ const PostForm = () => {
 
           {/* **** BLOCO PARA EXPERIÊNCIAS PROFISSIONAIS **** */}
           <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>Experiências Profissionais</h3>
+            <h3 className='mb-3 d-flex justify-content-center'>
+              Experiências Profissionais
+              <OverlayTrigger placement="right" overlay={ExpTooltip}>
+                <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
+              </OverlayTrigger>
+            </h3>
 
             {formExpData.map((experience, index) =>
               <Container className='experiences-container position-relative px-4 pt-3 pb-1 mb-3' key={index}>
@@ -382,7 +409,7 @@ const PostForm = () => {
                 <Row>
                   <Col>
                     <Form.Group className="mb-3" controlId={`formExpStartDate${index}`}>
-                      <Form.Label>Data do começo</Form.Label>
+                      <Form.Label>Data de Início</Form.Label>
                       <Form.Control 
                         type="date" 
                         name="exp_start_date" 
@@ -394,7 +421,7 @@ const PostForm = () => {
 
                   <Col>
                     <Form.Group className="mb-3" controlId={`formExpEndDate${index}`}>
-                      <Form.Label>Data do fim</Form.Label>
+                      <Form.Label>Data de Término</Form.Label>
                       <Form.Control 
                         type="date" 
                         name="exp_end_date" 
@@ -423,7 +450,12 @@ const PostForm = () => {
 
           {/* **** BLOCO PARA FORMAÇÃO ACADÊMICA **** */}
           <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>Formação Acadêmica</h3>
+            <h3 className='mb-3 d-flex justify-content-center'>
+              Formação Acadêmica
+              <OverlayTrigger placement="right" overlay={AcadTooltip}>
+                <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
+              </OverlayTrigger>
+            </h3>
 
             {formAcademicData.map((academic, index) =>
               <Container className='academic-container position-relative px-4 pt-3 pb-1 mb-3' key={index}>
@@ -443,7 +475,7 @@ const PostForm = () => {
                 <Row>
                   <Col>
                     <Form.Group className="mb-3" controlId={`formAcadStartDate${index}`}>
-                      <Form.Label>Data do começo</Form.Label>
+                      <Form.Label>Data de Início</Form.Label>
                       <Form.Control 
                         type="date" 
                         name="acad_start_date" 
@@ -455,7 +487,7 @@ const PostForm = () => {
 
                   <Col>
                     <Form.Group className="mb-3" controlId={`formAcadEndDate${index}`}>
-                        <Form.Label>Data do fim</Form.Label>
+                        <Form.Label>Data de Término</Form.Label>
                         <Form.Control 
                           type="date" 
                           name="acad_end_date" 
