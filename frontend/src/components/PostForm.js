@@ -224,61 +224,58 @@ const PostForm = () => {
   const handleSubmit = (ev) => {
     ev.preventDefault();
   
-    validateAllFields(); // Certifique-se de validar todos os campos antes do envio
+    try {
+      validateDates(); // Certificando de que os dados estão corretos antes do envio
   
-    const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
-    const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`;
+      // Caso exista complemento, fazer uma máscara para encaixar no Address Field, caso o contrário fica null
+      const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
+      const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`;
+      setFormContactData({ ...formContactData, address: fullAddress });
   
-    setFormContactData({ ...formContactData, address: fullAddress });
+      // Inicia a requisição para salvar as informações de contato e pegar o id gerado para fazer os relacionamentos
+      axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
+        .then(response => {
   
-    console.log(formContactData);
+          // Monta a requisição para informações pessoais
+          const personalInfoRequest = axios.post('http://127.0.0.1:8000/api/personal-info/', {
+            ...formPersonalData,
+            contact_info: response.data.id
+          });
   
-    // Inicia a requisição para salvar as informações de contato e pegar o id gerado para fazer os relacionamentos
-    axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
-      .then(response => {
-        console.log('Informações de contato enviadas com sucesso: ', response.data);
+          // Filtra e mapeia as requisições para as experiências profissionais
+          const expRequests = formExpData
+            .filter(exp => exp.position && exp.company && exp.exp_start_date)
+            .map(exp => {
+              return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
+                ...exp,
+                exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date,
+                description: exp.description === '' ? null : exp.description,
+                contact_info: response.data.id
+              });
+            });
   
-        // Monta a requisição para informações pessoais
-        const personalInfoRequest = axios.post('http://127.0.0.1:8000/api/personal-info/', {
-          ...formPersonalData,
-          contact_info: response.data.id
+          // Filtra e mapeia as requisições para a formação acadêmica
+          const academicRequests = formAcademicData
+            .filter(acad => acad.institution && acad.course && acad.acad_start_date)
+            .map(acad => {
+              return axios.post('http://127.0.0.1:8000/api/academic-background/', {
+                ...acad,
+                acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
+                contact_info: response.data.id
+              });
+            });
+  
+          // Envia todas as requisições em paralelo
+          return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
+        })
+        .catch(error => {
+          console.error('Erro ao enviar os dados:', error.message);
         });
-  
-        // Filtra e mapeia as requisições para as experiências profissionais
-        const expRequests = formExpData
-          .filter(exp => exp.position && exp.company && exp.exp_start_date)
-          .map(exp => {
-
-            return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
-              ...exp,
-              exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date, // Retornar null caso string esteja vazia para não dar erro
-              description: exp.description === '' ? null : exp.description, // Mesma lógica de cima
-              contact_info: response.data.id
-            });
-          });
-  
-        // Filtra e mapeia as requisições para a formação acadêmica
-        const academicRequests = formAcademicData
-          .filter(acad => acad.institution && acad.course && acad.acad_start_date)
-          .map(acad => {
-
-            return axios.post('http://127.0.0.1:8000/api/academic-background/', {
-              ...acad,
-              acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date, // Mesma lógica do último caso de cima
-              contact_info: response.data.id
-            });
-          });
-  
-        // Envia todas as requisições em paralelo
-        return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
-      })
-      .then(response => {
-        console.log('Todas as informações foram enviadas com sucesso:', response);
-      })
-      .catch(error => {
-        console.error('Erro ao enviar os dados:', error.message);
-      });
-  };  
+    } catch (error) {
+      console.error(error.message); // Exibe mensagem de erro de validação
+    }
+  };
+   
 
   return (
     <main className='main-container d-flex flex-column align-items-center justify-content-center'>
