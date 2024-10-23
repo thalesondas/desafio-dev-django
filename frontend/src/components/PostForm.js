@@ -10,7 +10,7 @@ const PostForm = () => {
 
   const dispatch = useDispatch();
 
-  {/* **** LISTA DE ESTADOS **** */}
+  // **** LISTA DE ESTADOS ****
   const states = [
     { code: 'AC' },
     { code: 'AL' },
@@ -41,7 +41,7 @@ const PostForm = () => {
     { code: 'TO' }
   ];
 
-  {/* **** BLOCO PARA ARMAZENAR VALORES DOS INPUT **** */}
+  // **** ESTADOS PARA ARMAZENAR VALORES DOS INPUTS ****
   const [formContactData, setFormContactData] = useState({
     email: '',
     phone: '',
@@ -77,7 +77,7 @@ const PostForm = () => {
     acad_end_date: null
   }]);
 
-  {/* **** BLOCO PARA MUDANÇAS NO INPUT **** */}
+  // **** FUNÇÕES PARA MANIPULAR AS MUDANÇAS NO INPUT ****
   const handleChangeContact = (ev) => {
     setFormContactData({
       ...formContactData,
@@ -111,7 +111,7 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   };
 
-  {/* **** BLOCO PARA FUNÇÕES DE VALIDAÇÃO **** */}
+  // **** FUNÇÕES DE VALIDAÇÃO ****
   const validateAllFields = () => {
     if(validateIsFieldEmpty()){
       dispatch(setAlert({ message: 'Preencha todos os campos obrigatórios', variant: 'danger' }));
@@ -180,7 +180,7 @@ const PostForm = () => {
           isFieldEmpty(formAddressData.state)
   }
 
-  {/* **** BLOCO PARA FUNÇÕES AUXILIARES**** */}
+  // **** FUNÇÕES AUXILIARES ****
   const isFieldEmpty = (value) => {
     return value.trim() === "";
   };
@@ -193,16 +193,18 @@ const PostForm = () => {
 
   const ExpTooltip = (
     <Tooltip id="ExpTooltip">
-      Experiências que não tiverem Cargo, Empresa e Data de Início preenchidas serão ignoradas
+      Experiências que não tiverem Cargo, Empresa e Data de Início preenchidas não serão salvas
     </Tooltip>
   );
 
   const AcadTooltip = (
     <Tooltip id="AcadTooltip">
-      Formações que não tiverem Instituição, Curso e Data de Início preenchidas serão ignoradas
+      Formações que não tiverem Instituição, Curso e Data de Início preenchidas não serão salvas
     </Tooltip>
   );
 
+
+  // **** ADICIONAR E REMOVER EXPERIÊNCIAS E FORMAÇÕES ACADÊMICAS ****
   const addExp = () => {
     setFormExpData([...formExpData, {
       position: '',
@@ -232,12 +234,12 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   }
 
-  {/* **** BLOCO/LÓGICA PARA CADASTRO DE CURRÍCULO **** */}
+  // **** LÓGICA PARA CADASTRO DE CURRÍCULO ****
   const handleSubmit = (ev) => {
     ev.preventDefault();
   
     try {
-      if(validateAllFields() === false) return; // Certificando de que os dados estão corretos antes do envio
+      if(!validateAllFields()) return; // Certificando de que os dados estão corretos antes do envio
   
       // Caso exista complemento, fazer uma máscara para encaixar no Address Field, caso o contrário fica null
       const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
@@ -296,7 +298,7 @@ const PostForm = () => {
         });
     } catch (error) {
       dispatch(setAlert({ message: error.message, variant: 'danger' }));
-      console.error("Erro: ", error.message); // Exibe mensagem de erro de validação
+      console.error("Erro: ", error.message);
     }
   };
   
