@@ -6,11 +6,51 @@ import '../assets/PostForm.css'
 
 const PostForm = () => {
 
+  {/* **** LISTA DE ESTADOS **** */}
+  const states = [
+    { code: 'AC' },
+    { code: 'AL' },
+    { code: 'AP' },
+    { code: 'AM' },
+    { code: 'BA' },
+    { code: 'CE' },
+    { code: 'DF' },
+    { code: 'ES' },
+    { code: 'GO' },
+    { code: 'MA' },
+    { code: 'MT' },
+    { code: 'MS' },
+    { code: 'MG' },
+    { code: 'PA' },
+    { code: 'PB' },
+    { code: 'PR' },
+    { code: 'PE' },
+    { code: 'PI' },
+    { code: 'RJ' },
+    { code: 'RN' },
+    { code: 'RS' },
+    { code: 'RO' },
+    { code: 'RR' },
+    { code: 'SC' },
+    { code: 'SP' },
+    { code: 'SE' },
+    { code: 'TO' }
+  ];
+
   {/* **** BLOCO PARA ARMAZENAR VALORES DOS INPUT **** */}
   const [formContactData, setFormContactData] = useState({
     email: '',
     phone: '',
     address: ''
+  });
+
+  const [formAddressData, setFormAddressData] = useState({
+    street: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    complement: ''
   });
 
   const [formPersonalData, setFormPersonalData] = useState({
@@ -33,10 +73,17 @@ const PostForm = () => {
     acad_end_date: null
   }]);
 
-  {/* **** BLOCO PARA MUDANÇAS NO INPUT // ARMAZENAR VALORES **** */}
+  {/* **** BLOCO PARA MUDANÇAS NO INPUT **** */}
   const handleChangeContact = (ev) => {
     setFormContactData({
       ...formContactData,
+      [ev.target.name]: ev.target.value
+    });
+  };
+
+  const handleChangeAddress = (ev) => {
+    setFormAddressData({
+      ...formAddressData,
       [ev.target.name]: ev.target.value
     });
   };
@@ -60,9 +107,9 @@ const PostForm = () => {
     setFormAcademicData(updatedAcademicData);
   };
 
-  {/* **** BLOCO PARA FUNÇÕES DE VALIDAÇÃO**** */}
+  {/* **** BLOCO PARA FUNÇÕES DE VALIDAÇÃO **** */}
   const validateAllFields = () => {
-    if(validateIsFieldEmpty){
+    if(validateIsFieldEmpty()){
       throw new Error("Preencha todos os campos obrigatórios");
     }
 
@@ -100,9 +147,15 @@ const PostForm = () => {
   };
 
   const validateIsFieldEmpty = () => {
-    if(isFieldEmpty(formContactData.email) || isFieldEmpty(formContactData.phone) || isFieldEmpty(formContactData.address) || isFieldEmpty(formPersonalData.name) || isFieldEmpty(formPersonalData.date_of_birth)) {
-      return true;
-    }
+    return isFieldEmpty(formContactData.email) ||
+          isFieldEmpty(formContactData.phone) ||
+          isFieldEmpty(formPersonalData.name) ||
+          isFieldEmpty(formPersonalData.date_of_birth) ||
+          isFieldEmpty(formAddressData.street) ||
+          isFieldEmpty(formAddressData.city) ||
+          isFieldEmpty(formAddressData.number) ||
+          isFieldEmpty(formAddressData.neighborhood) ||
+          isFieldEmpty(formAddressData.state)
   }
 
   {/* **** BLOCO PARA FUNÇÕES AUXILIARES**** */}
@@ -144,11 +197,17 @@ const PostForm = () => {
     ev.preventDefault();
 
     validateAllFields();
+
+    const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : ''
+    const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`
   
+    setFormContactData({ ...formContactData, address: fullAddress });
+
+    console.log(formContactData)
+
     axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
       .then(response => {
         console.log('Informações de contato enviadas com sucesso: ', response.data);
-  
   
         return axios.post('http://127.0.0.1:8000/api/personal-info/', {
           ...formPersonalData,
@@ -195,7 +254,7 @@ const PostForm = () => {
 
       <Form className='w-75' onSubmit={handleSubmit} >
 
-        <Row className='mb-4 gap-5'>
+        <Row className='mb-2 gap-5'>
           
           {/* **** BLOCO PARA INFORMAÇÕES DE CONTATO **** */}
           <Col>
@@ -203,7 +262,7 @@ const PostForm = () => {
 
             <Form.Group className="mb-3" controlId="formEmail">
                 <Form.Label>Email*</Form.Label>
-                <Form.Control type="email" placeholder="Coloque seu email" name='email' value={formContactData.email} onChange={handleChangeContact} />
+                <Form.Control type="email" name='email' value={formContactData.email} onChange={handleChangeContact} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPhone">
@@ -213,13 +272,8 @@ const PostForm = () => {
                   value={formContactData.phone}
                   onChange={handleChangeContact}
                 >
-                  {() => <Form.Control type="tel" name='phone' placeholder="Coloque seu telefone" />}
+                  {() => <Form.Control type="tel" name='phone' />}
                 </InputMask>
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formAddress">
-                <Form.Label>Endereço*</Form.Label>
-                <Form.Control as="textarea" row={3} placeholder="Coloque seu endereço" label="Address" name='address' value={formContactData.address} onChange={handleChangeContact} />
             </Form.Group>
           </Col>
 
@@ -229,7 +283,7 @@ const PostForm = () => {
 
             <Form.Group className="mb-3" controlId="formName">
                 <Form.Label>Nome*</Form.Label>
-                <Form.Control type="text" placeholder="Coloque seu nome" name='name' value={formPersonalData.name} onChange={handleChangePersonal} />
+                <Form.Control type="text" name='name' value={formPersonalData.name} onChange={handleChangePersonal} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formDateOfBirth">
@@ -245,6 +299,59 @@ const PostForm = () => {
 
         </Row>
 
+        {/* **** SUB-BLOCO PARA ENDEREÇO // INFORMAÇÕES DE CONTATO **** */}
+        <h4 className='d-flex justify-content-center mb-3'>Endereço</h4>
+        <Row className='gap-5 mb-4'>
+          <Col>
+            <Row>
+              <Col xs={8}>
+                <Form.Group className="mb-3" controlId="formStreet">
+                  <Form.Label>Rua*</Form.Label>
+                  <Form.Control type="text" name='street' value={formAddressData.street} onChange={handleChangeAddress} />
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="formCity">
+                  <Form.Label>Cidade*</Form.Label>
+                  <Form.Control type="text" name='city' value={formAddressData.city} onChange={handleChangeAddress} />
+                </Form.Group>
+              </Col>
+
+              <Col xs={4}>
+                <Form.Group className="mb-3" controlId="formNumber">
+                  <Form.Label>Número*</Form.Label>
+                  <Form.Control type="text" name='number' value={formAddressData.number} onChange={handleChangeAddress} />
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="formState">
+                  <Form.Label>Estado*</Form.Label>
+                  <Form.Select name='state' value={formAddressData.state} onChange={handleChangeAddress}>
+                    <option value="" disabled>-</option>
+                    {states.map(state => (
+                      <option key={state.code} value={state.code}>
+                        {state.code}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Col>
+
+          <Col>
+            <Form.Group className="mb-3" controlId="formNeighborhood">
+              <Form.Label>Bairro*</Form.Label>
+              <Form.Control type="text" name='neighborhood' value={formAddressData.neighborhood} onChange={handleChangeAddress} />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formComplement">
+              <Form.Label>Complemento</Form.Label>
+              <Form.Control type="text" name='complement' value={formAddressData.complement} onChange={handleChangeAddress} />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <hr className='mb-5' />
+
         <Row className='gap-5'>
 
           {/* **** BLOCO PARA EXPERIÊNCIAS PROFISSIONAIS **** */}
@@ -258,12 +365,12 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formPosition${index}`}>
                     <Form.Label>Cargo</Form.Label>
-                    <Form.Control type="text" placeholder="Coloque seu cargo" name='position' value={experience.position} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control type="text" name='position' value={experience.position} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId={`formCompany${index}`}>
                     <Form.Label>Empresa</Form.Label>
-                    <Form.Control type="text" placeholder="Coloque o nome da empresa" name='company' value={experience.company} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control type="text" name='company' value={experience.company} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 <Row>
@@ -294,7 +401,7 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formDescription${index}`}>
                     <Form.Label>Descrição</Form.Label>
-                    <Form.Control as="textarea" row={2} label="Description" placeholder="Coloque a descrição" name='description' value={experience.description} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control as="textarea" row={2} label="Description" name='description' value={experience.description} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 {formExpData.length !== 1 &&
@@ -319,12 +426,12 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formInstitution${index}`}>
                     <Form.Label>Instituição</Form.Label>
-                    <Form.Control type="text" placeholder="Coloque sua instituição" name='institution' value={academic.institution} onChange={(ev) => handleChangeAcademic(index, ev)} />
+                    <Form.Control type="text" name='institution' value={academic.institution} onChange={(ev) => handleChangeAcademic(index, ev)} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId={`formCourse${index}`}>
                     <Form.Label>Curso</Form.Label>
-                    <Form.Control type="text" placeholder="Coloque o curso" name='course' value={academic.course} onChange={(ev) => handleChangeAcademic(index, ev)} />
+                    <Form.Control type="text" name='course' value={academic.course} onChange={(ev) => handleChangeAcademic(index, ev)} />
                 </Form.Group>
 
                 <Row>
