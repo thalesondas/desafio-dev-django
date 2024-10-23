@@ -280,18 +280,26 @@ const PostForm = () => {
           // Envia todas as requisições em paralelo
           return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
         })
+        .then(response => {
+          // Se todas as requisições forem bem-sucedidas, exibe o alerta de sucesso
+          dispatch(setAlert({ message: 'Currículo cadastrado com sucesso', variant: 'success' }));
+        })
         .catch(error => {
-          dispatch(setAlert({ message: error.message, variant: 'danger' }));
-          console.error('Erro ao enviar os dados:', error.message);
+          if (error.response && error.response.status === 400) {
+            // Verifica se a resposta contém o erro de e-mail duplicado
+            const errorMsg = error.response.data.email ? 'Este e-mail já está cadastrado!' : 'Erro ao enviar os dados. Verifique os campos e tente novamente.';
+            dispatch(setAlert({ message: errorMsg, variant: 'danger' }));
+          } else {
+            dispatch(setAlert({ message: 'Erro ao enviar os dados. Tente novamente mais tarde', variant: 'danger' }));
+            console.error('Erro ao enviar os dados: ', error.message);
+          }
         });
     } catch (error) {
       dispatch(setAlert({ message: error.message, variant: 'danger' }));
-      console.error(error.message); // Exibe mensagem de erro de validação
+      console.error("Erro: ", error.message); // Exibe mensagem de erro de validação
     }
-    dispatch(setAlert({ message: 'Currículo cadastrado com sucesso', variant: 'success' }));
   };
-   
-
+  
   return (
     <main className='main-container d-flex flex-column align-items-center justify-content-center'>
 
