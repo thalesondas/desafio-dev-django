@@ -117,17 +117,27 @@ const PostForm = () => {
       throw new Error("Formato do email inválido")
     }
 
+    if(new Date(formPersonalData.date_of_birth) > new Date()){
+      throw new Error("Data de Nascimento não pode ser em uma data futura")
+    }
+
     if (formContactData.phone.length !== 15) {
       throw new Error("Número de telefone inválido")
     }
 
     formExpData.forEach(exp => {
+      if(new Date(exp.exp_start_date) > new Date() || new Date(exp.exp_end_date) > new Date()){
+        throw new Error("As datas nas experiências não podem ser datas futuras")
+      }
       if (!validateDates(exp.exp_start_date, exp.exp_end_date)) {
         throw new Error("A data de término da experiência profissional não pode ser anterior à data de início");
       }
     });
   
     formAcademicData.forEach(acad => {
+      if(new Date(acad.acad_start_date) > new Date() || new Date(acad.acad_end_date) > new Date()){
+        throw new Error("As datas nas formações acadêmicas não podem ser datas futuras")
+      }
       if (!validateDates(acad.acad_start_date, acad.acad_end_date)) {
         throw new Error("A data de término da formação acadêmica não pode ser anterior à data de início");
       }
