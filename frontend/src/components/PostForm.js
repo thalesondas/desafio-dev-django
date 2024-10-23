@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { useDispatch } from 'react-redux';
+import { setAlert } from '../redux/alertSlice';
 import axios from 'axios';
 import InputMask from 'react-input-mask';
 import '../assets/PostForm.css'
 
 const PostForm = () => {
+
+  const dispatch = useDispatch();
 
   {/* **** LISTA DE ESTADOS **** */}
   const states = [
@@ -110,36 +114,44 @@ const PostForm = () => {
   {/* **** BLOCO PARA FUNÇÕES DE VALIDAÇÃO **** */}
   const validateAllFields = () => {
     if(validateIsFieldEmpty()){
-      throw new Error("Preencha todos os campos obrigatórios");
+      dispatch(setAlert({ message: 'Preencha todos os campos obrigatórios', variant: 'danger' }));
+      return false;
     }
 
     if(!validateEmail(formContactData.email)){
-      throw new Error("Formato do email inválido")
+      dispatch(setAlert({ message: 'Formato do email inválido', variant: 'danger' }));
+      return false;
     }
 
     if(new Date(formPersonalData.date_of_birth) > new Date()){
-      throw new Error("Data de Nascimento não pode ser em uma data futura")
+      dispatch(setAlert({ message: 'Data de Nascimento não pode ser em uma data futura', variant: 'danger' }));
+      return false;
     }
 
     if (formContactData.phone.length !== 15) {
-      throw new Error("Número de telefone inválido")
+      dispatch(setAlert({ message: 'Número de telefone inválido', variant: 'danger' }));
+      return false;
     }
 
     formExpData.forEach(exp => {
       if(new Date(exp.exp_start_date) > new Date() || new Date(exp.exp_end_date) > new Date()){
-        throw new Error("As datas nas experiências não podem ser datas futuras")
+        dispatch(setAlert({ message: 'As datas nas experiências não podem ser datas futuras', variant: 'danger' }));
+        return false;
       }
       if (!validateDates(exp.exp_start_date, exp.exp_end_date)) {
-        throw new Error("A data de término da experiência profissional não pode ser anterior à data de início");
+        dispatch(setAlert({ message: 'A data de término da experiência profissional não pode ser anterior à data de início', variant: 'danger' }));
+        return false;
       }
     });
   
     formAcademicData.forEach(acad => {
       if(new Date(acad.acad_start_date) > new Date() || new Date(acad.acad_end_date) > new Date()){
-        throw new Error("As datas nas formações acadêmicas não podem ser datas futuras")
+        dispatch(setAlert({ message: 'As datas nas formações acadêmicas não podem ser datas futuras', variant: 'danger' }));
+        return false;
       }
       if (!validateDates(acad.acad_start_date, acad.acad_end_date)) {
-        throw new Error("A data de término da formação acadêmica não pode ser anterior à data de início");
+        dispatch(setAlert({ message: 'A data de término da formação acadêmica não pode ser anterior à data de início', variant: 'danger' }));
+        return false;
       }
     });
   }
@@ -225,7 +237,7 @@ const PostForm = () => {
     ev.preventDefault();
   
     try {
-      validateDates(); // Certificando de que os dados estão corretos antes do envio
+      if(validateAllFields() === false) return; // Certificando de que os dados estão corretos antes do envio
   
       // Caso exista complemento, fazer uma máscara para encaixar no Address Field, caso o contrário fica null
       const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
@@ -263,17 +275,20 @@ const PostForm = () => {
                 acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
                 contact_info: response.data.id
               });
-            });
+          });
   
           // Envia todas as requisições em paralelo
           return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
         })
         .catch(error => {
+          dispatch(setAlert({ message: error.message, variant: 'danger' }));
           console.error('Erro ao enviar os dados:', error.message);
         });
     } catch (error) {
+      dispatch(setAlert({ message: error.message, variant: 'danger' }));
       console.error(error.message); // Exibe mensagem de erro de validação
     }
+    dispatch(setAlert({ message: 'Currículo cadastrado com sucesso', variant: 'success' }));
   };
    
 
