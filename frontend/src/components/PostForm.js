@@ -303,9 +303,9 @@ const PostForm = () => {
   };
   
   return (
-    <main className='main-container d-flex flex-column align-items-center justify-content-center'>
+    <main className='d-flex flex-column align-items-center justify-content-center'>
 
-      <h1 className='mt-4 mb-5 d-flex justify-content-center'>
+      <h1 className='mt-5 mb-5 d-flex justify-content-center'>
         Cadastro do Currículo
         <OverlayTrigger placement="right" overlay={MainTooltip}>
           <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>

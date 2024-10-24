@@ -1,0 +1,25 @@
+header{
+    background-color: #282544;
+    border-bottom: 2px solid black;
+}
+
+header .pegho-logo{
+    height: 60px;
+}
+
+header .nav-link{
+    font-size: 22px;
+    color: white;
+    background-image: linear-gradient(#afafaf, #afafaf);
+    background-size: 0% 0.1em;
+    background-position-y: 90%;
+    background-position-x: 50%;
+    background-repeat: no-repeat;
+    white-space: nowrap;
+    transition: background-size 0.3s ease-in-out;
+}
+
+header .nav-link:hover{
+    color: #afafaf;
+    background-size: 100% 0.1em;
+}

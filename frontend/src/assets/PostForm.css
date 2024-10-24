@@ -1,11 +1,11 @@
-.cursor-pointer{
-    cursor: pointer;
-}
-
-.main-container{
+main{
     min-height: 100vh;
     background-color: #221f3c;
     color: white;
+}
+
+.cursor-pointer{
+    cursor: pointer;
 }
 
 .experiences-container,
