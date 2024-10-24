@@ -16,7 +16,7 @@ function App() {
         <BrowserRouter>
           <GlobalAlert />
           <Header />
-          <main className='d-flex flex-column align-items-center justify-content-center'>
+          <main className='d-flex flex-column align-items-center justify-content-start'>
             <Routes>
               <Route path="/" element={<PostForm />} />
               <Route path="/register" element={<Register />} />
