@@ -23,3 +23,8 @@ header .nav-link:hover{
     color: #afafaf;
     background-size: 100% 0.1em;
 }
+
+header .nav-link:focus{
+    color: #c6c6c6;
+    background-size: 15% 0.1em;
+}

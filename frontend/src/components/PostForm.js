@@ -303,7 +303,7 @@ const PostForm = () => {
   };
   
   return (
-    <main className='d-flex flex-column align-items-center justify-content-center'>
+    <>
 
       <h1 className='mt-5 mb-5 d-flex justify-content-center'>
         Cadastro do Currículo
@@ -549,7 +549,7 @@ const PostForm = () => {
 
         </Row>
       </Form>
-    </main>
+    </>
   );
 };
 

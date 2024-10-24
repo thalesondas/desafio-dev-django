@@ -1,3 +1,9 @@
+main{
+  min-height: 100vh;
+  background-color: #221f3c;
+  color: white;
+}
+
 .App {
   text-align: center;
 }
