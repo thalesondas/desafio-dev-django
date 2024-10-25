@@ -1,7 +1,41 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 import datetime
 import re
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("O email é obrigatório")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError("O superusuário precisa ter is_staff=True.")
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError("O superusuário precisa ter is_superuser=True.")
+
+        return self.create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)
+    username = None
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
 
 class ContactInfo(models.Model):
     email = models.EmailField(unique=True)
@@ -15,6 +49,7 @@ class ContactInfo(models.Model):
     def __str__(self):
         return f'ID: {self.id} | Email: {self.email} | Phone: {self.phone}'
 
+
 class PersonalInfo(models.Model):
     name = models.CharField(max_length=255)
     date_of_birth = models.DateField()
@@ -26,6 +61,7 @@ class PersonalInfo(models.Model):
 
     def __str__(self):
         return f'ID: {self.id} | Name: {self.name} | Contact email: {self.contact_info.email}'
+
 
 class ProfessionalExperience(models.Model):
     position = models.CharField(max_length=255)
@@ -41,6 +77,7 @@ class ProfessionalExperience(models.Model):
 
     def __str__(self):
         return f'Position: {self.position} | Company: {self.company} | Contact email: {self.contact_info.email}'
+
 
 class AcademicBackground(models.Model):
     institution = models.CharField(max_length=255)
