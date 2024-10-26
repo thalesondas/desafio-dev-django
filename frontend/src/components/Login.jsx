@@ -1,4 +1,4 @@
-import { Form } from "react-bootstrap";
+import { Button, Form, Row } from "react-bootstrap";
 
 const Login = () => {
     return(
@@ -14,6 +14,12 @@ const Login = () => {
                     <Form.Label>Senha</Form.Label>
                     <Form.Control type="password" name="password" />
                 </Form.Group>
+
+                <Row className="mt-4 d-flex justify-content-center align-self-center">
+                    <Button type="submit" className='w-25 submit-button'>
+                        Logar
+                    </Button>
+                </Row>
             </Form>
         </>
     )

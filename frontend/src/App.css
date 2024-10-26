@@ -4,6 +4,10 @@ main{
   color: white;
 }
 
+.submit-button{
+  background-color: #210bf4;
+}
+
 .App {
   text-align: center;
 }

@@ -1,4 +1,4 @@
-import { Form } from "react-bootstrap";
+import { Button, Form, Row } from "react-bootstrap";
 
 const Register = () => {
     return(
@@ -19,6 +19,12 @@ const Register = () => {
                     <Form.Label>Repita a Senha</Form.Label>
                     <Form.Control type="password2" name="password2" />
                 </Form.Group>
+
+                <Row className="mt-4 d-flex justify-content-center align-self-center">
+                    <Button type="submit" className='w-25 submit-button'>
+                        Cadastrar
+                    </Button>
+                </Row>
             </Form>
         </>
     )

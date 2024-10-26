@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setAlert } from '../redux/alertSlice';
 import axios from 'axios';
 import InputMask from 'react-input-mask';
@@ -9,6 +9,7 @@ import '../assets/PostForm.css'
 const PostForm = () => {
 
   const dispatch = useDispatch();
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
 
   // **** LISTA DE ESTADOS ****
   const states = [
@@ -305,14 +306,19 @@ const PostForm = () => {
   return (
     <>
 
-      <h1 className='mt-5 mb-5 d-flex justify-content-center'>
+      <h1 className='mt-5 d-flex justify-content-center'>
         Cadastro do Currículo
         <OverlayTrigger placement="right" overlay={MainTooltip}>
           <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
         </OverlayTrigger>
       </h1>
+      {!isLoggedIn ?
+        <span className='fs-6 text-danger'>Você precisa estar logado para poder preencher os campos!</span>
+      :
+       null   
+      }
 
-      <Form className='w-75' onSubmit={handleSubmit} >
+      <Form className='w-75 mt-5' onSubmit={handleSubmit} >
 
         <Row className='mb-2 gap-5'>
           
@@ -322,18 +328,23 @@ const PostForm = () => {
 
             <Form.Group className="mb-3" controlId="formEmail">
                 <Form.Label>Email*</Form.Label>
-                <Form.Control type="email" name='email' value={formContactData.email} onChange={handleChangeContact} />
+                <Form.Control disabled={!isLoggedIn} type="email" name='email' value={formContactData.email} onChange={handleChangeContact} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPhone">
                 <Form.Label>Telefone*</Form.Label>
-                <InputMask 
-                  mask="(99) 99999-9999" 
-                  value={formContactData.phone}
-                  onChange={handleChangeContact}
-                >
-                  {() => <Form.Control type="tel" name='phone' />}
-                </InputMask>
+                {isLoggedIn ? 
+                  <InputMask 
+                    disabled={!isLoggedIn}
+                    mask="(99) 99999-9999" 
+                    value={formContactData.phone}
+                    onChange={handleChangeContact}
+                  >
+                    {() => <Form.Control type="tel" name='phone' />}
+                  </InputMask>
+                  :
+                  <Form.Control disabled={!isLoggedIn}/>
+                }
             </Form.Group>
           </Col>
 
@@ -343,12 +354,13 @@ const PostForm = () => {
 
             <Form.Group className="mb-3" controlId="formName">
                 <Form.Label>Nome*</Form.Label>
-                <Form.Control type="text" name='name' value={formPersonalData.name} onChange={handleChangePersonal} />
+                <Form.Control disabled={!isLoggedIn} type="text" name='name' value={formPersonalData.name} onChange={handleChangePersonal} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formDateOfBirth">
                 <Form.Label>Data de Nascimento*</Form.Label>
                 <Form.Control 
+                  disabled={!isLoggedIn}
                   type="date" 
                   name="date_of_birth" 
                   value={formPersonalData.date_of_birth} 
@@ -367,24 +379,24 @@ const PostForm = () => {
               <Col xs={8}>
                 <Form.Group className="mb-3" controlId="formStreet">
                   <Form.Label>Rua*</Form.Label>
-                  <Form.Control type="text" name='street' value={formAddressData.street} onChange={handleChangeAddress} />
+                  <Form.Control disabled={!isLoggedIn} type="text" name='street' value={formAddressData.street} onChange={handleChangeAddress} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formCity">
                   <Form.Label>Cidade*</Form.Label>
-                  <Form.Control type="text" name='city' value={formAddressData.city} onChange={handleChangeAddress} />
+                  <Form.Control disabled={!isLoggedIn} type="text" name='city' value={formAddressData.city} onChange={handleChangeAddress} />
                 </Form.Group>
               </Col>
 
               <Col xs={4}>
                 <Form.Group className="mb-3" controlId="formNumber">
                   <Form.Label>Número*</Form.Label>
-                  <Form.Control type="text" name='number' value={formAddressData.number} onChange={handleChangeAddress} />
+                  <Form.Control disabled={!isLoggedIn} type="text" name='number' value={formAddressData.number} onChange={handleChangeAddress} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formState">
                   <Form.Label>Estado*</Form.Label>
-                  <Form.Select name='state' value={formAddressData.state} onChange={handleChangeAddress}>
+                  <Form.Select disabled={!isLoggedIn} name='state' value={formAddressData.state} onChange={handleChangeAddress}>
                     <option value="" disabled>-</option>
                     {states.map(state => (
                       <option key={state.code} value={state.code}>
@@ -400,12 +412,12 @@ const PostForm = () => {
           <Col>
             <Form.Group className="mb-3" controlId="formNeighborhood">
               <Form.Label>Bairro*</Form.Label>
-              <Form.Control type="text" name='neighborhood' value={formAddressData.neighborhood} onChange={handleChangeAddress} />
+              <Form.Control disabled={!isLoggedIn} type="text" name='neighborhood' value={formAddressData.neighborhood} onChange={handleChangeAddress} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formComplement">
               <Form.Label>Complemento</Form.Label>
-              <Form.Control type="text" name='complement' value={formAddressData.complement} onChange={handleChangeAddress} />
+              <Form.Control disabled={!isLoggedIn} type="text" name='complement' value={formAddressData.complement} onChange={handleChangeAddress} />
             </Form.Group>
           </Col>
         </Row>
@@ -430,12 +442,12 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formPosition${index}`}>
                     <Form.Label>Cargo</Form.Label>
-                    <Form.Control type="text" name='position' value={experience.position} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control disabled={!isLoggedIn} type="text" name='position' value={experience.position} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId={`formCompany${index}`}>
                     <Form.Label>Empresa</Form.Label>
-                    <Form.Control type="text" name='company' value={experience.company} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control disabled={!isLoggedIn} type="text" name='company' value={experience.company} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 <Row>
@@ -443,6 +455,7 @@ const PostForm = () => {
                     <Form.Group className="mb-3" controlId={`formExpStartDate${index}`}>
                       <Form.Label>Data de Início</Form.Label>
                       <Form.Control 
+                        disabled={!isLoggedIn}
                         type="date" 
                         name="exp_start_date" 
                         value={experience.exp_start_date} 
@@ -455,6 +468,7 @@ const PostForm = () => {
                     <Form.Group className="mb-3" controlId={`formExpEndDate${index}`}>
                       <Form.Label>Data de Término</Form.Label>
                       <Form.Control 
+                        disabled={!isLoggedIn}
                         type="date" 
                         name="exp_end_date" 
                         value={experience.exp_end_date} 
@@ -466,7 +480,7 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formDescription${index}`}>
                     <Form.Label>Descrição</Form.Label>
-                    <Form.Control as="textarea" row={2} label="Description" name='description' value={experience.description} onChange={(ev) => handleChangeExp(index, ev)} />
+                    <Form.Control disabled={!isLoggedIn} as="textarea" row={2} label="Description" name='description' value={experience.description} onChange={(ev) => handleChangeExp(index, ev)} />
                 </Form.Group>
 
                 {formExpData.length !== 1 &&
@@ -477,7 +491,7 @@ const PostForm = () => {
               </Container>
             )}
 
-              <Button variant='success' className='mt-1' onClick={addExp}>Adicionar nova experiência profissional</Button>
+              <Button variant='success' className='mt-1' disabled={!isLoggedIn} onClick={addExp}>Adicionar nova experiência profissional</Button>
           </Col>
 
           {/* **** BLOCO PARA FORMAÇÃO ACADÊMICA **** */}
@@ -496,12 +510,12 @@ const PostForm = () => {
 
                 <Form.Group className="mb-3" controlId={`formInstitution${index}`}>
                     <Form.Label>Instituição</Form.Label>
-                    <Form.Control type="text" name='institution' value={academic.institution} onChange={(ev) => handleChangeAcademic(index, ev)} />
+                    <Form.Control disabled={!isLoggedIn} type="text" name='institution' value={academic.institution} onChange={(ev) => handleChangeAcademic(index, ev)} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId={`formCourse${index}`}>
                     <Form.Label>Curso</Form.Label>
-                    <Form.Control type="text" name='course' value={academic.course} onChange={(ev) => handleChangeAcademic(index, ev)} />
+                    <Form.Control disabled={!isLoggedIn} type="text" name='course' value={academic.course} onChange={(ev) => handleChangeAcademic(index, ev)} />
                 </Form.Group>
 
                 <Row>
@@ -509,6 +523,7 @@ const PostForm = () => {
                     <Form.Group className="mb-3" controlId={`formAcadStartDate${index}`}>
                       <Form.Label>Data de Início</Form.Label>
                       <Form.Control 
+                        disabled={!isLoggedIn}
                         type="date" 
                         name="acad_start_date" 
                         value={academic.acad_start_date} 
@@ -521,6 +536,7 @@ const PostForm = () => {
                     <Form.Group className="mb-3" controlId={`formAcadEndDate${index}`}>
                         <Form.Label>Data de Término</Form.Label>
                         <Form.Control 
+                          disabled={!isLoggedIn}
                           type="date" 
                           name="acad_end_date" 
                           value={academic.acad_end_date} 
@@ -538,11 +554,16 @@ const PostForm = () => {
               </Container>
             )}
 
-              <Button variant='success' className='d-flex justify-content-center mt-1' onClick={addAcademic}>Adicionar nova formação acadêmica</Button>
+              <Button variant='success' className='d-flex justify-content-center mt-1' disabled={!isLoggedIn} onClick={addAcademic}>Adicionar nova formação acadêmica</Button>
           </Col>
 
-          <Row className='mb-3 d-flex justify-content-center'>
-            <Button variant="primary" type="submit" className='w-25'>
+          <Row className='mb-3 d-flex justify-content-center text-center'>
+            {!isLoggedIn ?
+              <span className='fs-6 mb-3 text-danger'>Você precisa estar logado para poder enviar o currículo!</span>
+              :
+              null
+            }
+            <Button type="submit" className='w-25 submit-button' disabled={!isLoggedIn}>
               Enviar Currículo
             </Button>
           </Row>
