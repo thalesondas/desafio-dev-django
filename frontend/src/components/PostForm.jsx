@@ -630,7 +630,7 @@ const PostForm = () => {
               :
               null
             }
-            <Button type="submit" className='w-25 submit-button' disabled={!isLoggedIn}>
+            <Button type="submit" className='mb-3 w-25 submit-button' disabled={!isLoggedIn}>
               Enviar Currículo
             </Button>
           </Row>

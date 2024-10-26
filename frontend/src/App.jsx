@@ -6,6 +6,7 @@ import Header from './components/Header';
 import PostForm from './components/PostForm';
 import Register from './components/Register';
 import Login from './components/Login';
+import Footer from './components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -24,6 +25,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </main>
+          <Footer />
         </BrowserRouter>
       </Provider>
     </>

@@ -1,0 +1,9 @@
+footer{
+    min-height: 8vh;
+    background-color: #282544;
+    border-top: 2px solid black;
+}
+
+footer a{
+    text-decoration: none;
+}
