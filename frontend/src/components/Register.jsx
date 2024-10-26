@@ -72,17 +72,32 @@ const Register = () => {
             <Form className="mt-2 w-25" onSubmit={handleRegister}>
                 <Form.Group>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" name="email" value={registerFormData.email} onChange={(ev) => handleChange(ev)} />
+                    <Form.Control
+                        type="email"
+                        name="email"
+                        value={registerFormData.email}
+                        onChange={(ev) => handleChange(ev)}
+                    />
                 </Form.Group>
 
                 <Form.Group className="mt-3">
                     <Form.Label>Senha</Form.Label>
-                    <Form.Control type="password" name="password" value={registerFormData.password} onChange={(ev) => handleChange(ev)}  />
+                    <Form.Control
+                        type="password"
+                        name="password"
+                        value={registerFormData.password}
+                        onChange={(ev) => handleChange(ev)}
+                    />
                 </Form.Group>
 
                 <Form.Group className="mt-3">
                     <Form.Label>Repita a Senha</Form.Label>
-                    <Form.Control type="password" name="repeatPassword" value={registerFormData.repeatPassword} onChange={(ev) => handleChange(ev)} />
+                    <Form.Control
+                        type="password"
+                        name="repeatPassword"
+                        value={registerFormData.repeatPassword}
+                        onChange={(ev) => handleChange(ev)}
+                    />
                 </Form.Group>
 
                 <Row className="mt-4 d-flex justify-content-center align-self-center">

@@ -13,7 +13,7 @@ const GlobalAlert = () => {
         if (alert.show) {
             const timer = setTimeout(() => {
                 dispatch(clearAlert());
-            }, 4000);
+            }, 3000);
 
             return () => clearTimeout(timer);
         }

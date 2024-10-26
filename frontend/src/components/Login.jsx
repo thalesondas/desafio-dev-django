@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { setAlert } from "../redux/alertSlice";
 import { login } from "../redux/authSlice"
 import axios from "axios";
@@ -75,6 +75,10 @@ const Login = () => {
                         onChange={handleChange}
                     />
                 </Form.Group>
+
+                <Row className="mt-2">
+                    <span className="text-center">Ainda não tem uma conta? <Link to="/register">Cadastre-se</Link></span>
+                </Row>
 
                 <Row className="mt-4 d-flex justify-content-center align-self-center">
                     <Button type="submit" className='submit-button' disabled={loading}>
