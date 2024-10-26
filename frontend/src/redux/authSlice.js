@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const checkToken = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     return !!token;
 };
 
