@@ -8,7 +8,7 @@ const checkToken = () => {
 const authSlice = createSlice({
     name: 'auth',
     initialState:{
-        isLoggedIn: false,
+        isLoggedIn: checkToken(),
     },
     reducers:{
         login: (state) => {

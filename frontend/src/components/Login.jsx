@@ -3,6 +3,7 @@ import { Button, Form, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setAlert } from "../redux/alertSlice";
+import { login } from "../redux/authSlice"
 import axios from "axios";
 
 const Login = () => {
@@ -31,9 +32,10 @@ const Login = () => {
 
         axios.post('http://127.0.0.1:8000/api/token/', loginFormData)
             .then(response => {
-                
+
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
+                dispatch(login());
 
                 dispatch(setAlert({ message: 'Logado com sucesso!', variant: 'success' }));
                 navigate("/");

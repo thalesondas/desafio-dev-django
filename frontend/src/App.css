@@ -8,3 +8,7 @@ main{
   background-color: #210bf4;
   width: 120px;
 }
+
+.cursor-pointer{
+  cursor: pointer;
+}

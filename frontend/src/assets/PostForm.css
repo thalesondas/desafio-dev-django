@@ -3,10 +3,6 @@
     border-radius: 15px;
 }
 
-.cursor-pointer{
-    cursor: pointer;
-}
-
 .experiences-container,
 .academic-container{
     border: 1px solid white;
