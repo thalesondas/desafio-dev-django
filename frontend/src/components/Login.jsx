@@ -1,6 +1,9 @@
 import { Button, Form, Row } from "react-bootstrap";
 
 const Login = () => {
+
+
+
     return(
         <>
             <h1 className="mt-5 mb-4">Login</h1>
@@ -16,7 +19,7 @@ const Login = () => {
                 </Form.Group>
 
                 <Row className="mt-4 d-flex justify-content-center align-self-center">
-                    <Button type="submit" className='w-25 submit-button'>
+                    <Button type="submit" className='submit-button'>
                         Logar
                     </Button>
                 </Row>
