@@ -9,6 +9,8 @@ import axios from "axios";
 const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(false);
     
     const [loginFormData, setLoginFormData] = useState({
         email: '',
@@ -30,6 +32,8 @@ const Login = () => {
             return;
         }
 
+        setLoading(true);
+
         axios.post('http://127.0.0.1:8000/api/token/', loginFormData)
             .then(response => {
 
@@ -43,6 +47,9 @@ const Login = () => {
             .catch(error => {
                 dispatch(setAlert({ message: "Dados inválidos, tente novamente", variant: 'danger' }));
             })
+            .finally(() => {
+                setLoading(false);
+            });
     }
 
     return(
@@ -70,8 +77,8 @@ const Login = () => {
                 </Form.Group>
 
                 <Row className="mt-4 d-flex justify-content-center align-self-center">
-                    <Button type="submit" className='submit-button'>
-                        Logar
+                    <Button type="submit" className='submit-button' disabled={loading}>
+                        {loading ? 'Carregando...' : 'Logar'}
                     </Button>
                 </Row>
             </Form>
