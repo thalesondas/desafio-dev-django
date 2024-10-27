@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlert } from '../redux/alertSlice';
-import axios from 'axios';
+import axios from '../axiosConfig.js';
 import InputMask from 'react-input-mask';
+import validator from "validator";
 import '../assets/PostForm.css'
 
 const PostForm = () => {
@@ -114,52 +115,62 @@ const PostForm = () => {
 
   // **** FUNÇÕES DE VALIDAÇÃO ****
   const validateAllFields = () => {
-    if(validateIsFieldEmpty()){
+
+    // Verifica se algum campo está vazio
+    if (validateIsFieldEmpty()) {
       dispatch(setAlert({ message: 'Preencha todos os campos obrigatórios', variant: 'danger' }));
       return false;
     }
-
-    if(!validateEmail(formContactData.email)){
+  
+    // Verifica se o e-mail é válido
+    if(!validator.isEmail(formContactData.email)){
       dispatch(setAlert({ message: 'Formato do email inválido', variant: 'danger' }));
       return false;
     }
-
-    if(new Date(formPersonalData.date_of_birth) > new Date()){
+  
+    // Verifica se a data de nascimento não é futura
+    if (new Date(formPersonalData.date_of_birth) > new Date()) {
       dispatch(setAlert({ message: 'Data de Nascimento não pode ser em uma data futura', variant: 'danger' }));
       return false;
     }
-
+  
+    // Verifica o formato do telefone
     if (formContactData.phone.length !== 15) {
       dispatch(setAlert({ message: 'Número de telefone inválido', variant: 'danger' }));
       return false;
     }
-
-    formExpData.forEach(exp => {
-      if(new Date(exp.exp_start_date) > new Date() || new Date(exp.exp_end_date) > new Date()){
+  
+    // Validação para experiências profissionais
+    const expInvalid = formExpData.some(exp => {
+      if (new Date(exp.exp_start_date) > new Date() || new Date(exp.exp_end_date) > new Date()) {
         dispatch(setAlert({ message: 'As datas nas experiências não podem ser datas futuras', variant: 'danger' }));
-        return false;
+        return true;
       }
       if (!validateDates(exp.exp_start_date, exp.exp_end_date)) {
         dispatch(setAlert({ message: 'A data de término da experiência profissional não pode ser anterior à data de início', variant: 'danger' }));
-        return false;
+        return true;
       }
+      return false;
     });
   
-    formAcademicData.forEach(acad => {
-      if(new Date(acad.acad_start_date) > new Date() || new Date(acad.acad_end_date) > new Date()){
+    if (expInvalid) return false; // Se alguma experiência for inválida, interrompe a validação.
+  
+    // Validação para formações acadêmicas
+    const acadInvalid = formAcademicData.some(acad => {
+      if (new Date(acad.acad_start_date) > new Date() || new Date(acad.acad_end_date) > new Date()) {
         dispatch(setAlert({ message: 'As datas nas formações acadêmicas não podem ser datas futuras', variant: 'danger' }));
-        return false;
+        return true;
       }
       if (!validateDates(acad.acad_start_date, acad.acad_end_date)) {
         dispatch(setAlert({ message: 'A data de término da formação acadêmica não pode ser anterior à data de início', variant: 'danger' }));
-        return false;
+        return true;
       }
+      return false;
     });
-  }
-
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return regex.test(email);
+  
+    if (acadInvalid) return false; // Se alguma formação for inválida, interrompe a validação.
+  
+    return true; // Se todos os campos passarem na validação, retorna true.
   }
 
   const validateDates = (startDate, endDate) => {
@@ -248,11 +259,11 @@ const PostForm = () => {
       setFormContactData({ ...formContactData, address: fullAddress });
   
       // Inicia a requisição para salvar as informações de contato e pegar o id gerado para fazer os relacionamentos
-      axios.post('http://127.0.0.1:8000/api/contact-info/', formContactData)
+      axios.post('contact-info/', formContactData)
         .then(response => {
   
           // Monta a requisição para informações pessoais
-          const personalInfoRequest = axios.post('http://127.0.0.1:8000/api/personal-info/', {
+          const personalInfoRequest = axios.post('personal-info/', {
             ...formPersonalData,
             contact_info: response.data.id
           });
@@ -261,7 +272,7 @@ const PostForm = () => {
           const expRequests = formExpData
             .filter(exp => exp.position && exp.company && exp.exp_start_date)
             .map(exp => {
-              return axios.post('http://127.0.0.1:8000/api/professional-experience/', {
+              return axios.post('professional-experience/', {
                 ...exp,
                 exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date,
                 description: exp.description === '' ? null : exp.description,
@@ -273,7 +284,7 @@ const PostForm = () => {
           const academicRequests = formAcademicData
             .filter(acad => acad.institution && acad.course && acad.acad_start_date)
             .map(acad => {
-              return axios.post('http://127.0.0.1:8000/api/academic-background/', {
+              return axios.post('academic-background/', {
                 ...acad,
                 acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
                 contact_info: response.data.id
