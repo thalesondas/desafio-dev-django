@@ -39,6 +39,7 @@ const Login = () => {
 
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
+                localStorage.setItem('email_login', loginFormData.email);
                 dispatch(login());
 
                 dispatch(setAlert({ message: 'Logado com sucesso!', variant: 'success' }));

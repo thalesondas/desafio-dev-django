@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlert } from '../redux/alertSlice';
@@ -11,6 +11,108 @@ const PostForm = () => {
 
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
+
+  // Preenchendo valores nos campos caso já tenha feito o envio do currículo anteriormente
+  useEffect(() => {
+    const fetchUserData = async () => {
+        if (isLoggedIn) {
+            try {
+                const email = localStorage.getItem('email_login');
+
+                // Faz uma requisição para buscar todos os contatos
+                const contactsResponse = await axios.get('contact-info/');
+
+                // Encontra o contato que corresponde ao email
+                const user = contactsResponse.data.find(contact => contact.email === email);
+
+                if (user) {
+                  // Preenche os dados do formulário com as informações do usuário
+                  setFormContactData({
+                      email: localStorage.getItem('email_login') || '',
+                      phone: user.phone || '',
+                  });
+
+                  // Lógico para separar o address salvo em partes e pegar cada parte para colocar no seu devido input
+                  const addressParts = user.address.split(',').map(part => part.trim());
+
+                  const addressStreet = addressParts[0];
+
+                  const numberAndNeighborhood = addressParts[1].split('-').map(part => part.trim());
+                  const addressNumber = numberAndNeighborhood[0];
+                  const addressNeighborhood = numberAndNeighborhood[1];
+
+                  const cityAndState = addressParts[2].split('-').map(part => part.trim());
+                  const addressCity = cityAndState[0];
+                  const addressState = cityAndState[1];
+
+                  const addressComplement = addressParts.length >= 3 ? addressParts[3] : '';
+
+                  setFormAddressData({
+                    street: addressStreet || '',
+                    city: addressCity || '',
+                    number: addressNumber || '',
+                    state: addressState || '',
+                    neighborhood: addressNeighborhood || '',
+                    complement: addressComplement,
+                  });
+
+                  if (user.personal_info) {
+                    setFormPersonalData({
+                        name: user.personal_info.name || '',
+                        date_of_birth: user.personal_info.date_of_birth || '',
+                    });
+                  }
+
+                  setFormExpData(
+                    user.professional_experiences?.length > 0 ?
+                     user.professional_experiences.map(exp => ({
+                          position: exp.position || '',
+                          company: exp.company || '',
+                          exp_start_date: exp.exp_start_date || '',
+                          exp_end_date: exp.exp_end_date || null,
+                          description: exp.description || null,
+                      }))
+                      : 
+                      [{
+                          position: '',
+                          company: '',
+                          exp_start_date: '',
+                          exp_end_date: null,
+                          description: null,
+                      }]
+                  );
+
+                  setFormAcademicData(
+                    user.academic_backgrounds?.length > 0 ?
+                      user.academic_backgrounds.map(acad => ({
+                        institution: acad.institution || '',
+                        course: acad.course || '',
+                        acad_start_date: acad.acad_start_date || '',
+                        acad_end_date: acad.acad_end_date || null,
+                      }))
+                      : 
+                      [{
+                        institution: '',
+                        course: '',
+                        acad_start_date: '',
+                        acad_end_date: null,
+                      }]
+                  );
+
+                } else {
+                    setFormContactData({
+                      email: localStorage.getItem('email_login') || ''
+                    });
+                    console.warn('Nenhum contato encontrado para o email:', email);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar dados do usuário:', error);
+            }
+        }
+    };
+
+    fetchUserData();
+}, [isLoggedIn]);
 
   // **** LISTA DE ESTADOS ****
   const states = [
@@ -340,7 +442,7 @@ const PostForm = () => {
             <Form.Group className="mb-3" controlId="formEmail">
                 <Form.Label>Email*</Form.Label>
                 <Form.Control
-                  disabled={!isLoggedIn}
+                  disabled
                   type="email"
                   name='email'
                   value={formContactData.email}

@@ -13,6 +13,7 @@ const Header = () => {
     const handleLogout = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("email_login");
         dispatch(logout());
     }
 
@@ -26,7 +27,8 @@ const Header = () => {
                     {isLoggedIn ? 
                         <Row className="gap-5 d-flex justify-content-center align-items-center text-white">
                             <Col>
-                                <span className="fs-4">Conectado</span>
+                                <span className="d-block fs-5">Conectado:</span>
+                                <span className="fs-6">{localStorage.getItem('email_login')}</span>
                             </Col>
                             <Col>
                                 <span className="text-danger">● </span><span className="cursor-pointer" onClick={handleLogout}>Desconectar</span>
