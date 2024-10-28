@@ -56,7 +56,7 @@ const Login = () => {
     return(
         <>
             <h1 className="mt-5 mb-4">Login</h1>
-            <Form className="mt-2 w-25" onSubmit={handleLogin}>
+            <Form className="mt-2 col-10 col-sm-8 col-md-4 col-xl-3" onSubmit={handleLogin}>
                 <Form.Group>
                     <Form.Label>Email</Form.Label>
                     <Form.Control

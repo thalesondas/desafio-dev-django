@@ -1,3 +1,7 @@
+.custom-gap{
+    gap: 3rem;
+}
+
 .container-danger{
     border: 2px solid red;
     border-radius: 15px;
@@ -7,4 +11,10 @@
 .academic-container{
     border: 1px solid white;
     border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .custom-gap {
+        gap: 1rem;
+    }
 }

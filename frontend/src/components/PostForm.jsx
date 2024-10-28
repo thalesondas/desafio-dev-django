@@ -431,9 +431,9 @@ const PostForm = () => {
        null   
       }
 
-      <Form className='w-75 mt-5' onSubmit={handleSubmit} >
+      <Form className='col-11 col-sm-10 col-xl-8 col-md-9 mt-5' onSubmit={handleSubmit} >
 
-        <Row className='mb-2 gap-5'>
+        <Row className='mb-2 custom-gap'>
           
           {/* **** BLOCO PARA INFORMAÇÕES DE CONTATO **** */}
           <Col>
@@ -498,7 +498,7 @@ const PostForm = () => {
 
         {/* **** SUB-BLOCO PARA ENDEREÇO // INFORMAÇÕES DE CONTATO **** */}
         <h4 className='d-flex justify-content-center mb-3 mt-4'>Endereço</h4>
-        <Row className='gap-5 mb-4'>
+        <Row className='custom-gap mb-4'>
           <Col>
             <Row>
               <Col xs={8}>
@@ -578,7 +578,7 @@ const PostForm = () => {
 
         <hr className='mb-5' />
 
-        <Row className='gap-5'>
+        <Row className='custom-gap'>
 
           {/* **** BLOCO PARA EXPERIÊNCIAS PROFISSIONAIS **** */}
           <Col>
