@@ -38,7 +38,7 @@ class User(AbstractUser):
 
 
 class ContactInfo(models.Model):
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     phone = models.CharField(max_length=15)
     address = models.TextField()
 

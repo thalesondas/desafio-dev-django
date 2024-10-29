@@ -20,10 +20,10 @@ const PostForm = () => {
                 const email = localStorage.getItem('email_login');
 
                 // Faz uma requisição para buscar todos os contatos
-                const contactsResponse = await axios.get('contact-info/');
+                const contactResponse = await axios.get('contact-info/');
 
                 // Encontra o contato que corresponde ao email
-                const user = contactsResponse.data.find(contact => contact.email === email);
+                const user = contactResponse.data.find(contact => contact.email === email);
 
                 if (user) {
                   // Preenche os dados do formulário com as informações do usuário
@@ -349,72 +349,149 @@ const PostForm = () => {
   }
 
   // **** LÓGICA PARA CADASTRO DE CURRÍCULO ****
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
   
     try {
-      if(!validateAllFields()) return; // Certificando de que os dados estão corretos antes do envio
+      if (!validateAllFields()) return; // Certificando de que os dados estão corretos antes do envio
   
-      // Caso exista complemento, fazer uma máscara para encaixar no Address Field, caso o contrário fica null
+      // Monta o endereço completo
       const complement = formAddressData.complement.trim() !== '' ? `, ${formAddressData.complement}` : '';
       const fullAddress = `${formAddressData.street}, ${formAddressData.number} - ${formAddressData.neighborhood}, ${formAddressData.city} - ${formAddressData.state}${complement}`;
-      setFormContactData({ ...formContactData, address: fullAddress });
   
-      // Inicia a requisição para salvar as informações de contato e pegar o id gerado para fazer os relacionamentos
-      axios.post('contact-info/', formContactData)
-        .then(response => {
+      const email = localStorage.getItem('email_login');
   
-          // Monta a requisição para informações pessoais
-          const personalInfoRequest = axios.post('personal-info/', {
-            ...formPersonalData,
-            contact_info: response.data.id
-          });
+      // Faz uma requisição para buscar todos os contatos
+      const contactResponse = await axios.get('contact-info/');
+      const user = contactResponse.data.find(contact => contact.email === email);
   
-          // Filtra e mapeia as requisições para as experiências profissionais
-          const expRequests = formExpData
-            .filter(exp => exp.position && exp.company && exp.exp_start_date)
-            .map(exp => {
-              return axios.post('professional-experience/', {
-                ...exp,
-                exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date,
-                description: exp.description === '' ? null : exp.description,
-                contact_info: response.data.id
-              });
-            });
+      if (user) {
   
-          // Filtra e mapeia as requisições para a formação acadêmica
-          const academicRequests = formAcademicData
-            .filter(acad => acad.institution && acad.course && acad.acad_start_date)
-            .map(acad => {
-              return axios.post('academic-background/', {
-                ...acad,
-                acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
-                contact_info: response.data.id
-              });
-          });
+        const response = await axios.get(`contact-info/${user.id}/`);
   
-          // Envia todas as requisições em paralelo
-          return Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
-        })
-        .then(response => {
-          // Se todas as requisições forem bem-sucedidas, exibe o alerta de sucesso
-          dispatch(setAlert({ message: 'Currículo cadastrado com sucesso', variant: 'success' }));
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 400) {
-            // Verifica se a resposta contém o erro de e-mail duplicado
-            const errorMsg = error.response.data.email ? 'Este e-mail já está cadastrado!' : 'Erro ao enviar os dados. Verifique os campos e tente novamente.';
-            dispatch(setAlert({ message: errorMsg, variant: 'danger' }));
-          } else {
-            dispatch(setAlert({ message: 'Erro ao enviar os dados. Tente novamente mais tarde', variant: 'danger' }));
-            console.error('Erro ao enviar os dados: ', error.message);
-          }
+        // Caso exista, faz o update
+        const contactInfoRequest = axios.patch(`contact-info/${response.data.id}/`, { 
+          ...formContactData, 
+          address: fullAddress 
         });
+        const personalInfoRequest = axios.patch(`personal-info/${response.data.id}/`, {
+          ...formPersonalData
+        });
+  
+        // Bloco de lógica para atualizar experiências profissionais
+        if (formExpData.length === 1 && (!formExpData[0].position || !formExpData[0].company || !formExpData[0].exp_start_date)) {
+          // Caso o usuário remova todas as experiências do formulário, deleta todas do backend
+          const expDeleteRequests = response.data.professional_experiences.map(exp => 
+            axios.delete(`professional-experience/${exp.id}/`)
+          );
+          await Promise.all(expDeleteRequests);
+        } else {
+          // 1. Atualizar as experiências existentes
+          const expUpdateRequests = response.data.professional_experiences.slice(0, formExpData.length).map((exp, index) => 
+            axios.patch(`professional-experience/${exp.id}/`, {
+              ...formExpData[index],
+              exp_end_date: formExpData[index].exp_end_date === '' ? null : formExpData[index].exp_end_date,
+              description: formExpData[index].description === '' ? null : formExpData[index].description
+            })
+          );
+        
+          // 2. Adicionar novas experiências (caso o formulário tenha mais do que o backend)
+          const newExpRequests = formExpData.slice(response.data.professional_experiences.length).map(exp => 
+            axios.post('professional-experience/', {
+              ...exp,
+              exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date,
+              description: exp.description === '' ? null : exp.description,
+              contact_info: response.data.id
+            })
+          );
+        
+          // 3. Remover experiências que estão no backend, mas não estão no formulário
+          const expDeleteRequests = response.data.professional_experiences.slice(formExpData.length).map(exp => 
+            axios.delete(`professional-experience/${exp.id}/`)
+          );
+        
+          // Executa todas as requisições de atualização, criação e exclusão
+          await Promise.all([...expUpdateRequests, ...newExpRequests, ...expDeleteRequests]);
+        }
+
+        // Bloco de lógica para atualizar formações acadêmicas
+        if (formAcademicData.length === 1 && (!formAcademicData[0].institution || !formAcademicData[0].course || !formAcademicData[0].acad_start_date)) {
+          // Caso o usuário remova todas as formações do formulário, deleta todas do backend
+          const acadDeleteRequests = response.data.academic_backgrounds.map(acad => 
+            axios.delete(`academic-background/${acad.id}/`)
+          );
+          await Promise.all(acadDeleteRequests);
+        } else {
+          // 1. Atualizar as formações existentes
+          const acadUpdateRequests = response.data.academic_backgrounds.slice(0, formAcademicData.length).map((acad, index) => 
+            axios.patch(`academic-background/${acad.id}/`, {
+              ...formAcademicData[index],
+              acad_end_date: formAcademicData[index].acad_end_date === '' ? null : formAcademicData[index].acad_end_date
+            })
+          );
+        
+          // 2. Adicionar novas formações (caso o formulário tenha mais do que o backend)
+          const newAcadRequests = formAcademicData.slice(response.data.academic_backgrounds.length).map(acad => 
+            axios.post('academic-background/', {
+              ...acad,
+              acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
+              contact_info: response.data.id
+            })
+          );
+        
+          // 3. Remover experiências que estão no backend, mas não estão no formulário
+          const acadDeleteRequests = response.data.academic_backgrounds.slice(formAcademicData.length).map(acad => 
+            axios.delete(`academic-background/${acad.id}/`)
+          );
+        
+          // Executa todas as requisições de atualização, criação e exclusão
+          await Promise.all([...acadUpdateRequests, ...newAcadRequests, ...acadDeleteRequests]);
+        }
+  
+        await Promise.all([contactInfoRequest, personalInfoRequest]);
+  
+        dispatch(setAlert({ message: 'Currículo atualizado com sucesso', variant: 'success' }));
+      } else {
+
+        // Caso não exista, crie uma primeira vez
+        const response = await axios.post('contact-info/', {
+          ...formContactData,
+          address: fullAddress
+        });
+  
+        const personalInfoRequest = await axios.post('personal-info/', {
+          ...formPersonalData,
+          contact_info: response.data.id
+        });
+  
+        const expRequests = await Promise.all(formExpData
+          .filter(exp => exp.position && exp.company && exp.exp_start_date)
+          .map(exp => axios.post('professional-experience/', {
+            ...exp,
+            exp_end_date: exp.exp_end_date === '' ? null : exp.exp_end_date,
+            description: exp.description === '' ? null : exp.description,
+            contact_info: response.data.id
+          }))
+        );
+  
+        const academicRequests = await Promise.all(formAcademicData
+          .filter(acad => acad.institution && acad.course && acad.acad_start_date)
+          .map(acad => axios.post('academic-background/', {
+            ...acad,
+            acad_end_date: acad.acad_end_date === '' ? null : acad.acad_end_date,
+            contact_info: response.data.id
+          }))
+        );
+  
+        await Promise.all([personalInfoRequest, ...expRequests, ...academicRequests]);
+  
+        dispatch(setAlert({ message: 'Currículo cadastrado com sucesso', variant: 'success' }));
+      }
     } catch (error) {
-      dispatch(setAlert({ message: error.message, variant: 'danger' }));
-      console.error("Erro: ", error.message);
+      dispatch(setAlert({ message: 'Erro ao enviar os dados. Tente novamente mais tarde', variant: 'danger' }));
+      console.error('Erro ao enviar os dados: ', error.message);
     }
-  };
+  };  
   
   return (
     <>
@@ -462,7 +539,7 @@ const PostForm = () => {
                     {() => <Form.Control type="tel" name='phone' />}
                   </InputMask>
                   :
-                  <Form.Control disabled={!isLoggedIn}/>
+                  <Form.Control value={"(__) _____-____"} disabled={!isLoggedIn}/>
                 }
             </Form.Group>
           </Col>
