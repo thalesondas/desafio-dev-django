@@ -1,3 +1,4 @@
+import re
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import PersonalInfo, ContactInfo, ProfessionalExperience, AcademicBackground, User
@@ -84,6 +85,11 @@ class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInfo
         fields = '__all__'
+
+    def validate_phone(self, value):
+        if not re.match(r'^\(\d{2}\) \d{5}-\d{4}$', value):
+            raise serializers.ValidationError("Número de telefone inválido. O formato deve ser (XX) XXXXX-XXXX")
+        return value
 
     def create(self, validated_data):
         contact_info = ContactInfo(**validated_data)
