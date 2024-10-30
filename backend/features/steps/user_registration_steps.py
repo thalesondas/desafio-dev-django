@@ -15,14 +15,10 @@ from behave import given, when, then
 def step_given_api_running(context):
     context.client = APIClient()
 
-@given('um usuário existente com o e-mail "{email}"')
-def step_given_existing_user(context, email):
-    User.objects.create_user(email=email, password='password123')
-
-@when('eu registro um novo usuário com um e-mail existente')
-def step_when_register_existing_email(context):
+@when('eu registro um novo usuário com um e-mail existente = "{email}')
+def step_when_register_existing_email(context, email):
     payload = {
-        'email': 'testuser@example.com',
+        'email': email,
         'password': 'password123'
     }
     response = context.client.post(reverse('register'), data=payload, format='json')

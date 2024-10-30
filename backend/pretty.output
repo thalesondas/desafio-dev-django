@@ -8,10 +8,9 @@ Feature: Validação nas informações de contato # features/contactinfo_registratio
 
 Feature: Registro de Usuário # features/user_registration.feature:1
 
-  Scenario: Registro com um e-mail existente                     # features/user_registration.feature:3
-    Given a API está rodando para poder registrar                # features/steps/user_registration_steps.py:14
-    And um usuário existente com o e-mail "testuser@example.com" # features/steps/user_registration_steps.py:18
-    When eu registro um novo usuário com um e-mail existente     # features/steps/user_registration_steps.py:22
-    Then o registro deve falhar                                  # features/steps/user_registration_steps.py:31
-    And eu devo receber uma mensagem de erro                     # features/steps/user_registration_steps.py:37
+  Scenario: Registro com um e-mail existente                                          # features/user_registration.feature:3
+    Given a API está rodando para poder registrar                                     # features/steps/user_registration_steps.py:14
+    When eu registro um novo usuário com um e-mail existente = "usertest@example.com" # features/steps/user_registration_steps.py:18
+    Then o registro deve falhar                                                       # features/steps/user_registration_steps.py:27
+    And eu devo receber uma mensagem de erro                                          # features/steps/user_registration_steps.py:33
 
