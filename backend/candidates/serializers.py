@@ -81,7 +81,7 @@ class ContactInfoSerializer(serializers.ModelSerializer):
     personal_info = PersonalInfoSerializer(read_only=True)
     professional_experiences = ProfessionalExperienceSerializer(many=True, read_only=True)
     academic_backgrounds = AcademicBackgroundSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = ContactInfo
         fields = '__all__'
@@ -98,8 +98,10 @@ class ContactInfoSerializer(serializers.ModelSerializer):
         return contact_info
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        instance.phone = validated_data.get('phone', instance.phone)
+        instance.email = validated_data.get('email', instance.email)
+        instance.address = validated_data.get('address', instance.address)
+
         instance.full_clean()
         instance.save()
         return instance

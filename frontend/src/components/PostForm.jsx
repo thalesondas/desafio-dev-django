@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Form, Button, Row, Col, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Form, Button, Row, OverlayTrigger, Tooltip, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlert } from '../redux/alertSlice';
 import axios from '../axiosConfig.js';
-import InputMask from 'react-input-mask';
 import validator from "validator";
+import ContactInfo from './ContactInfo.jsx';
+import PersonalInfo from './PersonalInfo.jsx';
+import AddressInfo from './AddressInfo.jsx';
+import ProfissionalExperience from './ProfissionalExperience.jsx';
+import AcademicBackground from './AcademicBackground.jsx';
 import '../assets/PostForm.css'
 
 const PostForm = () => {
@@ -235,10 +239,9 @@ const PostForm = () => {
       dispatch(setAlert({ message: 'Data de Nascimento não pode ser em uma data futura', variant: 'danger' }));
       return false;
     }
-  
-    // Verifica o formato do telefone
-    if (formContactData.phone.length !== 15) {
-      dispatch(setAlert({ message: 'Número de telefone inválido', variant: 'danger' }));
+
+    if(!validatePhone(formContactData.phone)){
+      dispatch(setAlert({ message: "Número de telefone inválido. O formato deve ser (XX) XXXXX-XXXX", variant: 'danger' }));
       return false;
     }
   
@@ -280,6 +283,11 @@ const PostForm = () => {
       return false;
     }
     return true;
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
+    return phoneRegex.test(phone);
   };
 
   const validateIsFieldEmpty = () => {
@@ -369,7 +377,7 @@ const PostForm = () => {
   
         const response = await axios.get(`contact-info/${user.id}/`);
   
-        // Caso exista, faz o update
+        // Caso exista, faz o update (PATCH)
         const contactInfoRequest = axios.patch(`contact-info/${response.data.id}/`, { 
           ...formContactData, 
           address: fullAddress 
@@ -453,7 +461,7 @@ const PostForm = () => {
         dispatch(setAlert({ message: 'Currículo atualizado com sucesso', variant: 'success' }));
       } else {
 
-        // Caso não exista, crie uma primeira vez
+        // Caso não exista, crie uma primeira vez (POST)
         const response = await axios.post('contact-info/', {
           ...formContactData,
           address: fullAddress
@@ -495,337 +503,83 @@ const PostForm = () => {
   
   return (
     <>
-
       <h1 className='mt-5 d-flex justify-content-center'>
         Cadastro do Currículo
         <OverlayTrigger placement="right" overlay={MainTooltip}>
           <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
         </OverlayTrigger>
       </h1>
+
       {!isLoggedIn ?
         <span className='fs-6 text-danger'>Você precisa estar logado para poder preencher os campos!</span>
       :
        null   
       }
 
-      <Form className='col-11 col-sm-10 col-xl-8 col-md-9 mt-5' onSubmit={handleSubmit} >
+      <Form className='col-11 col-sm-10 col-md-9 col-xl-7 mt-5' onSubmit={handleSubmit} >
 
-        <Row className='mb-2 custom-gap'>
+        <Row className='mb-2 gap-2'>
           
-          {/* **** BLOCO PARA INFORMAÇÕES DE CONTATO **** */}
-          <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>Informações de Contato</h3>
-
-            <Form.Group className="mb-3" controlId="formEmail">
-                <Form.Label>Email*</Form.Label>
-                <Form.Control
-                  disabled
-                  type="email"
-                  name='email'
-                  value={formContactData.email}
-                  onChange={handleChangeContact}
-                />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formPhone">
-                <Form.Label>Telefone*</Form.Label>
-                {isLoggedIn ? 
-                  <InputMask 
-                    disabled={!isLoggedIn}
-                    mask="(99) 99999-9999" 
-                    value={formContactData.phone}
-                    onChange={handleChangeContact}
-                  >
-                    {() => <Form.Control type="tel" name='phone' />}
-                  </InputMask>
-                  :
-                  <Form.Control value={"(__) _____-____"} disabled={!isLoggedIn}/>
-                }
-            </Form.Group>
-          </Col>
-
-          {/* **** BLOCO PARA INFORMAÇÕES PESSOAIS **** */}
-          <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>Informações Pessoais</h3>
-
-            <Form.Group className="mb-3" controlId="formName">
-                <Form.Label>Nome*</Form.Label>
-                <Form.Control
-                  disabled={!isLoggedIn}
-                  type="text"
-                  name='name'
-                  value={formPersonalData.name}
-                  onChange={handleChangePersonal}
-                />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formDateOfBirth">
-                <Form.Label>Data de Nascimento*</Form.Label>
-                <Form.Control 
-                  disabled={!isLoggedIn}
-                  type="date" 
-                  name="date_of_birth" 
-                  value={formPersonalData.date_of_birth} 
-                  onChange={handleChangePersonal} 
-                />
-            </Form.Group>
-          </Col>
+          <ContactInfo 
+            formContactData={formContactData} 
+            handleChangeContact={handleChangeContact} 
+            isLoggedIn={isLoggedIn} 
+          />
+          
+          <PersonalInfo
+            formPersonalData={formPersonalData} 
+            handleChangePersonal={handleChangePersonal} 
+            isLoggedIn={isLoggedIn} 
+          />
 
         </Row>
 
-        {/* **** SUB-BLOCO PARA ENDEREÇO // INFORMAÇÕES DE CONTATO **** */}
-        <h4 className='d-flex justify-content-center mb-3 mt-4'>Endereço</h4>
-        <Row className='custom-gap mb-4'>
-          <Col>
-            <Row>
-              <Col xs={8}>
-                <Form.Group className="mb-3" controlId="formStreet">
-                  <Form.Label>Rua*</Form.Label>
-                  <Form.Control
-                    disabled={!isLoggedIn}
-                    type="text"
-                    name='street'
-                    value={formAddressData.street}
-                    onChange={handleChangeAddress}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formCity">
-                  <Form.Label>Cidade*</Form.Label>
-                  <Form.Control
-                    disabled={!isLoggedIn}
-                    type="text"
-                    name='city'
-                    value={formAddressData.city}
-                    onChange={handleChangeAddress} />
-                </Form.Group>
-              </Col>
-
-              <Col xs={4}>
-                <Form.Group className="mb-3" controlId="formNumber">
-                  <Form.Label>Número*</Form.Label>
-                  <Form.Control
-                    disabled={!isLoggedIn}
-                    type="text"
-                    name='number'
-                    value={formAddressData.number}
-                    onChange={handleChangeAddress}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formState">
-                  <Form.Label>Estado*</Form.Label>
-                  <Form.Select disabled={!isLoggedIn} name='state' value={formAddressData.state} onChange={handleChangeAddress}>
-                    <option value="" disabled>-</option>
-                    {states.map(state => (
-                      <option key={state.code} value={state.code}>
-                        {state.code}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-          </Col>
-
-          <Col>
-            <Form.Group className="mb-3" controlId="formNeighborhood">
-              <Form.Label>Bairro*</Form.Label>
-              <Form.Control
-                disabled={!isLoggedIn}
-                type="text"
-                name='neighborhood'
-                value={formAddressData.neighborhood}
-                onChange={handleChangeAddress}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formComplement">
-              <Form.Label>Complemento</Form.Label>
-              <Form.Control
-                disabled={!isLoggedIn}
-                type="text"
-                name='complement'
-                value={formAddressData.complement}
-                onChange={handleChangeAddress}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <AddressInfo
+          formAddressData={formAddressData} 
+          handleChangeAddress={handleChangeAddress} 
+          states={states} 
+          isLoggedIn={isLoggedIn} 
+        />
 
         <hr className='mb-5' />
 
-        <Row className='custom-gap'>
+        <Row className='gap-2'>
 
-          {/* **** BLOCO PARA EXPERIÊNCIAS PROFISSIONAIS **** */}
           <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>
-              Experiências Profissionais
-              <OverlayTrigger placement="right" overlay={ExpTooltip}>
-                <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
-              </OverlayTrigger>
-            </h3>
-
-            {formExpData.map((experience, index) =>
-              <Container className='experiences-container position-relative px-4 pt-3 pb-1 mb-3' key={index}>
-                
-                <h5 className='mb-1 d-flex justify-content-center'>Experiência {index + 1}</h5>
-
-                <Form.Group className="mb-3" controlId={`formPosition${index}`}>
-                    <Form.Label>Cargo</Form.Label>
-                    <Form.Control
-                      disabled={!isLoggedIn}
-                      type="text"
-                      name='position'
-                      value={experience.position}
-                      onChange={(ev) => handleChangeExp(index, ev)}
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId={`formCompany${index}`}>
-                    <Form.Label>Empresa</Form.Label>
-                    <Form.Control
-                      disabled={!isLoggedIn}
-                      type="text"
-                      name='company'
-                      value={experience.company}
-                      onChange={(ev) => handleChangeExp(index, ev)}
-                    />
-                </Form.Group>
-
-                <Row>
-                  <Col>
-                    <Form.Group className="mb-3" controlId={`formExpStartDate${index}`}>
-                      <Form.Label>Data de Início</Form.Label>
-                      <Form.Control 
-                        disabled={!isLoggedIn}
-                        type="date" 
-                        name="exp_start_date" 
-                        value={experience.exp_start_date} 
-                        onChange={(ev) => handleChangeExp(index, ev)}
-                      />
-                    </Form.Group>
-                  </Col>
-
-                  <Col>
-                    <Form.Group className="mb-3" controlId={`formExpEndDate${index}`}>
-                      <Form.Label>Data de Término</Form.Label>
-                      <Form.Control 
-                        disabled={!isLoggedIn}
-                        type="date" 
-                        name="exp_end_date" 
-                        value={experience.exp_end_date} 
-                        onChange={(ev) => handleChangeExp(index, ev)}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Form.Group className="mb-3" controlId={`formDescription${index}`}>
-                    <Form.Label>Descrição</Form.Label>
-                    <Form.Control
-                      disabled={!isLoggedIn}
-                      as="textarea"
-                      row={2}
-                      label="Description"
-                      name='description'
-                      value={experience.description}
-                      onChange={(ev) => handleChangeExp(index, ev)}
-                    />
-                </Form.Group>
-
-                {formExpData.length !== 1 &&
-                  <span className="cursor-pointer position-absolute top-0 end-0 me-3 mt-1" onClick={() => removeExp(index)}>
-                    <i className="bi bi-x-circle-fill text-danger fs-2"></i>
-                  </span>
-                }
-              </Container>
-            )}
-
-              <Button variant='success' className='mt-1' disabled={!isLoggedIn} onClick={addExp}>Adicionar nova experiência profissional</Button>
+            <ProfissionalExperience
+              formExpData={formExpData} 
+              handleChangeExp={handleChangeExp} 
+              removeExp={removeExp} 
+              addExp={addExp} 
+              isLoggedIn={isLoggedIn} 
+              ExpTooltip={ExpTooltip}
+            />
           </Col>
 
-          {/* **** BLOCO PARA FORMAÇÃO ACADÊMICA **** */}
           <Col>
-            <h3 className='mb-3 d-flex justify-content-center'>
-              Formação Acadêmica
-              <OverlayTrigger placement="right" overlay={AcadTooltip}>
-                <i className="bi bi-exclamation-circle-fill ps-2 fs-6"></i>
-              </OverlayTrigger>
-            </h3>
-
-            {formAcademicData.map((academic, index) =>
-              <Container className='academic-container position-relative px-4 pt-3 pb-1 mb-3' key={index}>
-
-                <h5 className='mb-1 d-flex justify-content-center'>Formação {index + 1}</h5>
-
-                <Form.Group className="mb-3" controlId={`formInstitution${index}`}>
-                    <Form.Label>Instituição</Form.Label>
-                    <Form.Control
-                      disabled={!isLoggedIn}
-                      type="text"
-                      name='institution'
-                      value={academic.institution}
-                      onChange={(ev) => handleChangeAcademic(index, ev)}
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId={`formCourse${index}`}>
-                    <Form.Label>Curso</Form.Label>
-                    <Form.Control disabled={!isLoggedIn} type="text" name='course' value={academic.course} onChange={(ev) => handleChangeAcademic(index, ev)} />
-                </Form.Group>
-
-                <Row>
-                  <Col>
-                    <Form.Group className="mb-3" controlId={`formAcadStartDate${index}`}>
-                      <Form.Label>Data de Início</Form.Label>
-                      <Form.Control 
-                        disabled={!isLoggedIn}
-                        type="date" 
-                        name="acad_start_date" 
-                        value={academic.acad_start_date} 
-                        onChange={(ev) => handleChangeAcademic(index, ev)}
-                      />
-                    </Form.Group>
-                  </Col>
-
-                  <Col>
-                    <Form.Group className="mb-3" controlId={`formAcadEndDate${index}`}>
-                        <Form.Label>Data de Término</Form.Label>
-                        <Form.Control 
-                          disabled={!isLoggedIn}
-                          type="date" 
-                          name="acad_end_date" 
-                          value={academic.acad_end_date} 
-                          onChange={(ev) => handleChangeAcademic(index, ev)}
-                        />
-                      </Form.Group>
-                  </Col>
-                </Row>
-
-                {formAcademicData.length !== 1 &&
-                  <span className="cursor-pointer position-absolute top-0 end-0 me-3 mt-1" onClick={() => removeAcademic(index)}>
-                    <i className="bi bi-x-circle-fill text-danger fs-2"></i>
-                  </span>
-                }
-              </Container>
-            )}
-
-              <Button variant='success' className='d-flex justify-content-center mt-1' disabled={!isLoggedIn} onClick={addAcademic}>Adicionar nova formação acadêmica</Button>
+            <AcademicBackground
+              formAcademicData={formAcademicData} 
+              handleChangeAcademic={handleChangeAcademic} 
+              removeAcademic={removeAcademic} 
+              addAcademic={addAcademic} 
+              isLoggedIn={isLoggedIn} 
+              AcadTooltip={AcadTooltip}
+            />
           </Col>
-
-          <Row className='mb-3 d-flex justify-content-center text-center'>
-            {!isLoggedIn ?
-              <span className='fs-6 mb-3 text-danger'>Você precisa estar logado para poder enviar o currículo!</span>
-              :
-              null
-            }
-            <Button type="submit" className='mb-3 w-25 submit-button' disabled={!isLoggedIn}>
-              Enviar Currículo
-            </Button>
-          </Row>
 
         </Row>
+
+        <Row className='mb-3 d-flex justify-content-center text-center'>
+          {!isLoggedIn ?
+            <span className='fs-6 mb-3 text-danger'>Você precisa estar logado para poder enviar o currículo!</span>
+            :
+            null
+          }
+          <Button type="submit" className='mb-3 w-25 submit-button' disabled={!isLoggedIn}>
+            Enviar Currículo
+          </Button>
+        </Row>
+
       </Form>
     </>
   );
