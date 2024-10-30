@@ -9,7 +9,7 @@ const AddressInfo = ({ formAddressData, handleChangeAddress, states, isLoggedIn 
         <Row>
           <Col xs={8}>
             <Form.Group className="mb-3" controlId="formStreet">
-              <Form.Label>Rua*</Form.Label>
+              <Form.Label>Rua<span className='text-danger fs-5'>*</span></Form.Label>
               <Form.Control
                 disabled={!isLoggedIn}
                 type="text"
@@ -20,7 +20,7 @@ const AddressInfo = ({ formAddressData, handleChangeAddress, states, isLoggedIn 
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formCity">
-              <Form.Label>Cidade*</Form.Label>
+              <Form.Label>Cidade<span className='text-danger fs-5'>*</span></Form.Label>
               <Form.Control
                 disabled={!isLoggedIn}
                 type="text"
@@ -33,7 +33,7 @@ const AddressInfo = ({ formAddressData, handleChangeAddress, states, isLoggedIn 
 
           <Col xs={4}>
             <Form.Group className="mb-3" controlId="formNumber">
-              <Form.Label>Número*</Form.Label>
+              <Form.Label>Número<span className='text-danger fs-5'>*</span></Form.Label>
               <Form.Control
                 disabled={!isLoggedIn}
                 type="text"
@@ -44,7 +44,7 @@ const AddressInfo = ({ formAddressData, handleChangeAddress, states, isLoggedIn 
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formState">
-              <Form.Label>Estado*</Form.Label>
+              <Form.Label>Estado<span className='text-danger fs-5'>*</span></Form.Label>
               <Form.Select 
                 disabled={!isLoggedIn} 
                 name='state' 
@@ -65,7 +65,7 @@ const AddressInfo = ({ formAddressData, handleChangeAddress, states, isLoggedIn 
 
       <Col>
         <Form.Group className="mb-3" controlId="formNeighborhood">
-          <Form.Label>Bairro*</Form.Label>
+          <Form.Label>Bairro<span className='text-danger fs-5'>*</span></Form.Label>
           <Form.Control
             disabled={!isLoggedIn}
             type="text"

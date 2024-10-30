@@ -5,7 +5,7 @@ const PersonalInfo = ({ formPersonalData, handleChangePersonal, isLoggedIn }) =>
     <h3 className='d-flex justify-content-center'>Informações Pessoais</h3>
 
     <Form.Group className="mb-3" controlId="formName">
-      <Form.Label>Nome*</Form.Label>
+      <Form.Label>Nome<span className='text-danger fs-5'>*</span></Form.Label>
       <Form.Control
         disabled={!isLoggedIn}
         type="text"
@@ -16,7 +16,7 @@ const PersonalInfo = ({ formPersonalData, handleChangePersonal, isLoggedIn }) =>
     </Form.Group>
 
     <Form.Group className="mb-3" controlId="formDateOfBirth">
-      <Form.Label>Data de Nascimento*</Form.Label>
+      <Form.Label>Data de Nascimento<span className='text-danger fs-5'>*</span></Form.Label>
       <Form.Control 
         disabled={!isLoggedIn}
         type="date" 

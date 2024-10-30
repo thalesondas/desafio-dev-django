@@ -6,7 +6,7 @@ const ContactInfo = ({ formContactData, handleChangeContact, isLoggedIn }) => (
     <h3 className='d-flex justify-content-center'>Informações de Contato</h3>
 
     <Form.Group className="mb-3" controlId="formEmail">
-      <Form.Label>Email*</Form.Label>
+      <Form.Label>Email<span className='text-danger fs-5'>*</span></Form.Label>
       <Form.Control
         disabled
         type="email"
@@ -17,7 +17,7 @@ const ContactInfo = ({ formContactData, handleChangeContact, isLoggedIn }) => (
     </Form.Group>
 
     <Form.Group className="mb-3" controlId="formPhone">
-      <Form.Label>Telefone*</Form.Label>
+      <Form.Label>Telefone<span className='text-danger fs-5'>*</span></Form.Label>
       {isLoggedIn ? (
         <InputMask 
           disabled={!isLoggedIn}
