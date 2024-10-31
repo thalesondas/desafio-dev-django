@@ -1,34 +1,41 @@
-# Desafio Técnico - Desenvolvedor Django
+# Instruções de instalação e execução do projeto
 
-A empresa **Pegho**, especializada em recrutamento e seleção, está crescendo rapidamente e percebeu a necessidade de um sistema que centralize as informações de seus candidatos. Para resolver esse desafio, a Pegho contratou a nossa consultoria para desenvolver um sistema que facilite o processo de contratação, permitindo que os candidatos enviem suas informações de currículo de forma organizada.
+## Pré-requisitos
 
-Seu desafio será desenvolver esse **sistema de recrutamento**, onde os candidatos poderão submeter informações como dados pessoais, contatos, experiência profissional e formação acadêmica. O sistema será usado pela equipe de recrutamento da Pegho para avaliar os candidatos de maneira mais eficiente.
+Antes de começar, certifique-se de ter os seguintes softwares instalados:
 
-O objetivo principal é avaliar suas habilidades de desenvolvimento backend com Django, mas também observar a implementação de um frontend funcional. Você pode desenvolver o frontend em Django puro ou utilizar frameworks como ReactJS, VueJS, Angular ou outro de sua preferência. A estilização do frontend não é o foco, mas será um diferencial caso seja feita.
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Requisitos:
-1. **Backend**:
-    - Implementar uma API ou interface em Django para gerenciar os currículos.
-    - Modelos de banco de dados para:
-        - Dados pessoais (nome, data de nascimento, etc.).
-        - Contato (email, telefone, endereço, etc.).
-        - Experiência profissional (cargo, empresa, período, descrição).
-        - Formação acadêmica (instituição, curso, período).
-    - CRUD completo para essas informações.
-    - Validações básicas dos dados (como formato de email, números de telefone, etc.).
-    - **Criação do Django Admin** para gerenciamento dos dados cadastrados.
+## Instalação e execução
 
-2. **Frontend**:
-    - Pode ser feito em Django com templates ou em algum framework JS (React, Vue, Angular, etc.).
-    - Deve permitir que o usuário preencha e envie o currículo.
-    - Não há necessidade de estilização complexa, apenas funcionalidade.
+1. Abra o terminal na sua área de trabalho
 
-3. **Extras (opcionais, mas valorizados)**:
-    - Utilizar Django Rest Framework (DRF) para criar uma API REST.
-    - Utilização de Docker para containerização da aplicação.
-    - Implementar uma autenticação simples para proteger o sistema.
-    - Estilização básica no frontend com Bootstrap, TailwindCSS ou qualquer outro framework CSS.
+2. Clone o repositório e entre no repositório clonado:
 
-4. **Diferenciais (não obrigatórios, mas valorizados)**:
-    - Implementação de **testes unitários** no backend.
-    - Implementação de **BDD (Behavior-Driven Development)** para o backend usando ferramentas como Behave ou Pytest-BDD.
+   ```bash
+   git clone https://github.com/thalesondas/desafio-dev-django.git
+   cd desafio-dev-django
+   ```
+
+3. Construa a imagem do Docker e inicie os contêineres em segundo plano:
+
+    ```bash
+    docker-compose up -d
+    ```
+
+4. Acesse o aplicativo:
+
+    - Acesse o backend Django em [http://localhost:8000/api](http://localhost:8000/api)
+    - Acesse o frontend React em [http://localhost:3000](http://localhost:3000)
+
+5. Para parar e remover os contêineres em execução::
+
+    ```bash
+    docker-compose down
+    ```
+
+### Caso queira usar a conta de Django Admin para gerenciar os dados cadastrados:
+
+* Acesse a página de login do Admin em [http://localhost:8000/admin](http://localhost:8000/admin)
+* Utilize a conta com o email 'admin@admin.com' e senha 'admin123' para entrar
