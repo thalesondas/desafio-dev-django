@@ -2,13 +2,11 @@
 venv/
 
 # python files
+.pytest_cache/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# local database
-db.sqlite3
 
 # env files
 .env

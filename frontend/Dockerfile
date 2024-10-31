@@ -1,12 +1,13 @@
-FROM node:20.17.0
+FROM node:22.11.0
 
-WORKDIR /app
+WORKDIR /frontend
 
-COPY package.json .
-RUN npm install
+COPY package.json package-lock*.json ./
+
+RUN npm install && npm cache clean --force
 
 COPY . .
 
-EXPOSE 3000
-
 CMD ["npm", "start"]
+
+EXPOSE 3000
